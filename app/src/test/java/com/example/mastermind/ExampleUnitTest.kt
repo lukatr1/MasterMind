@@ -1,9 +1,15 @@
 package com.example.mastermind
 
 import org.junit.Test
-import com.example.mastermind.data.QuestionRepo
+import org.junit.Before
+
 import com.example.mastermind.data.GetQuizRepoProvider
+import com.example.mastermind.data.QuizRepo
+import com.example.mastermind.data.QuizRepoImpl
+import com.example.mastermind.data.models.QuestionTrueFalse
 import org.junit.Assert.*
+
+
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -12,26 +18,20 @@ import org.junit.Assert.*
  */
 class QuizRepoUnitTest {
     @Test
-    fun createdQuestionIsStoredInRepo() {
-        val repo = QuestionRepo()
-        repo.createMultipleChoiceQuestion(
-            choicesTrue = listOf("a", "b"),
-            choicesFalse = listOf("c", "d"),
-            text = "What is the capital of France?"
-        )
-        repo.createTrueFalseQuestion(
-            answer = true,
-            text = "Is the earth flat?"
-        )
-        assertEquals(2, repo.getQuestions().size)
-    }
-    @Test
     fun createdQuizIsStoredInRepo() {
         val quizRepoProvider = GetQuizRepoProvider()
         val quizRepo = quizRepoProvider.getInstance()
         quizRepo.createQuiz("Quiz 1")
         assertEquals( 1, quizRepo.getAllQuizzes().size)
     }
+    @Test
+    fun createdQuizHasCorrectName() {
+        val quizRepoProvider = GetQuizRepoProvider()
+        val quizRepo = quizRepoProvider.getInstance()
+        val quizId = quizRepo.createQuiz("Quiz 1")
+        assertEquals("Quiz 1", quizRepo.getQuizById(quizId).name)
+    }
+
     @Test
     fun QuizIsDeletedFromRepo() {
         val quizRepoProvider = GetQuizRepoProvider()
@@ -45,10 +45,18 @@ class QuizRepoUnitTest {
         val quizRepoProvider = GetQuizRepoProvider()
         val quizRepo = quizRepoProvider.getInstance()
         val quizId1 = quizRepo.createQuiz("Quiz to delete")
-        val quizId2 = quizRepo.createQuiz("Quiz to stay")
+        quizRepo.createQuiz("Quiz to keep")
         quizRepo.deleteQuiz(quizId1)
         assertEquals( 1, quizRepo.getAllQuizzes().size)
-        assertEquals( "Quiz to stay", quizRepo.getAllQuizzes()[0].name)
+        assertEquals( "Quiz to keep", quizRepo.getAllQuizzes()[0].name)
+    }
+    @Test
+    fun deletingNonexistentQuizDoesNotAffectRepo() {
+        val quizRepoProvider = GetQuizRepoProvider()
+        val quizRepo = quizRepoProvider.getInstance()
+        quizRepo.createQuiz("Quiz 1")
+        quizRepo.deleteQuiz(99)
+        assertEquals(1, quizRepo.getAllQuizzes().size)
     }
     @Test
     fun IdsAreUnique() {
@@ -65,17 +73,169 @@ class QuizRepoUnitTest {
         val quizId = quizRepo.createQuiz("Quiz 1")
         assertEquals( "Quiz 1", quizRepo.getQuizById(quizId).name)
     }
+}
+
+class QuizRepoQuestionsTest {
+
+    private lateinit var quizRepo: QuizRepo
+
+    @Before
+    fun setup() {
+        quizRepo = QuizRepoImpl()
+    }
     @Test
-    fun QuestionsAreAddedToQuiz() {
-        val quizRepoProvider = GetQuizRepoProvider()
-        val quizRepo = quizRepoProvider.getInstance()
-        val quizId = quizRepo.createQuiz("Quiz 1")
-        val questionRepo = QuestionRepo()
-        questionRepo.createMultipleChoiceQuestion(
-            choicesTrue = listOf("a", "b"),
-            choicesFalse = listOf("c", "d"),
-            text = "What is the capital of France?"
+    fun getQuestionByQuizAndQuestionIdReturnsCorrectQuestion() {
+        val quizId = quizRepo.createQuiz("Quiz with a question")
+        val questionId = quizRepo.createMultipleChoiceQuestion(
+            quizId,
+            choicesTrue = listOf("Correct answer"),
+            id = quizId,
+            choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
+            text = "Sample Question"
         )
-        assertEquals( 1, quizRepo.getQuestionsByQuizId(quizId).size)
+        val question = quizRepo.getQuestionByQuizAndQuestionId(quizId, questionId)
+        assertEquals("Sample Question", question?.text)
+    }
+    @Test
+    fun questionIsRemovedFromQuiz() {
+        val quizId = quizRepo.createQuiz("Quiz with questions")
+        val questionId = quizRepo.createMultipleChoiceQuestion(
+            quizId,
+            choicesTrue = listOf("Correct answer"),
+            id = quizId,
+            choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
+            text = "Sample Question"
+        )
+        quizRepo.removeQuestionFromQuiz(quizId, questionId)
+        assertEquals(0, quizRepo.getQuestionsByQuizId(quizId).size)
+    }
+
+    @Test
+    fun createMultipleChoiceQuestionAddsQuestionToQuiz() {
+        val quizId = quizRepo.createQuiz("Quiz with multiple choice question")
+        quizRepo.createMultipleChoiceQuestion(
+            quizId,
+            choicesTrue = listOf("Correct answer"),
+            id = quizId,
+            choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
+            text = "Sample Multiple Choice Question"
+        )
+        val questions = quizRepo.getQuestionsByQuizId(quizId)
+        assertEquals(1, questions.size)
+        assertEquals("Sample Multiple Choice Question", questions[0].text)
+    }
+
+    @Test
+    fun createTrueFalseQuestionAddsQuestionToQuiz() {
+        val quizId = quizRepo.createQuiz("Quiz with true/false question")
+        quizRepo.createTrueFalseQuestion(
+            quizId,
+            answer = true,
+            id = quizId,
+            text = "Sample True/False Question"
+        )
+        val questions = quizRepo.getQuestionsByQuizId(quizId)
+        assertEquals(1, questions.size)
+        assertEquals("Sample True/False Question", questions[0].text)
+        assertEquals(true, (questions[0] as QuestionTrueFalse).answer)
+    }
+
+    @Test
+    fun getQuestionsByQuizIdReturnsCorrectQuestions() {
+        val quizId = quizRepo.createQuiz("Quiz with multiple questions")
+        quizRepo.createMultipleChoiceQuestion(
+            quizId,
+            choicesTrue = listOf("Correct answer"),
+            id = quizId,
+            choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
+            text = "Sample Multiple Choice Question"
+        )
+        quizRepo.createTrueFalseQuestion(
+            quizId,
+            answer = false,
+            id = quizId,
+            text = "Sample True/False Question"
+        )
+        val questions = quizRepo.getQuestionsByQuizId(quizId)
+        assertEquals(2, questions.size)
+    }
+
+    @Test
+    fun uniqueIdGeneratesUniqueIds() {
+        val quizId1 = quizRepo.createQuiz("Quiz 1")
+        val quizId2 = quizRepo.createQuiz("Quiz 2")
+        assertNotEquals(quizId1, quizId2)
+    }
+
+    @Test
+    fun uniqueQuestionIdGeneratesUniqueQuestionIds() {
+        val quizId = quizRepo.createQuiz("Quiz with unique questions")
+        val questionId1 = quizRepo.createMultipleChoiceQuestion(
+            quizId,
+            choicesTrue = listOf("Correct answer"),
+            id = quizId,
+            choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
+            text = "Sample Question 1"
+        )
+        val questionId2 = quizRepo.createTrueFalseQuestion(
+            quizId,
+            answer = true,
+            id = quizId,
+            text = "Sample Question 2"
+        )
+        assertNotEquals(questionId1, questionId2)
+    }
+    @Test
+    fun updateQuestion_Successful() {
+        val quizId = quizRepo.createQuiz("Quiz with questions")
+        val questionId = quizRepo.createMultipleChoiceQuestion(
+            quizId,
+            choicesTrue = listOf("Correct answer"),
+            id = quizId,
+            choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
+            text = "Original Question Text"
+        )
+
+        val updated = quizRepo.updateQuestion(quizId, questionId, "Updated Question Text")
+
+        assertTrue(updated)
+        val updatedQuestion = quizRepo.getQuestionByQuizAndQuestionId(quizId, questionId)
+        assertEquals("Updated Question Text", updatedQuestion?.text)
+    }
+
+    @Test
+    fun updateQuestion_InvalidQuizId() {
+        val quizId = quizRepo.createQuiz("Quiz with questions")
+        val questionId = quizRepo.createMultipleChoiceQuestion(
+            quizId,
+            choicesTrue = listOf("Correct answer"),
+            id = quizId,
+            choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
+            text = "Original Question Text"
+        )
+
+        val updated = quizRepo.updateQuestion(999, questionId, "Updated Question Text")
+
+        assertFalse(updated)
+        val originalQuestion = quizRepo.getQuestionByQuizAndQuestionId(quizId, questionId)
+        assertEquals("Original Question Text", originalQuestion?.text)
+    }
+
+    @Test
+    fun updateQuestion_InvalidQuestionId() {
+        val quizId = quizRepo.createQuiz("Quiz with questions")
+        quizRepo.createMultipleChoiceQuestion(
+            quizId,
+            choicesTrue = listOf("Correct answer"),
+            id = quizId,
+            choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
+            text = "Original Question Text"
+        )
+
+        val updated = quizRepo.updateQuestion(quizId, 999, "Updated Question Text")
+
+        assertFalse(updated)
     }
 }
+
+
