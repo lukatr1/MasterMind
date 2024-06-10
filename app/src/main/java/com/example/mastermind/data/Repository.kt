@@ -12,20 +12,25 @@ interface QuizRepo {
     fun createQuiz(name: String):Int
     fun deleteQuiz(id: Int)
     fun removeQuestionFromQuiz(quizId: Int, questionId: Int)
-    fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, id: Int, choicesFalse: List<String>, text: String):Int
-    fun createTrueFalseQuestion(quizId: Int, answer: Boolean, id: Int, text: String):Int
+    fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String):Int
+    fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String):Int
     fun getQuestionsByQuizId(quizId: Int): List<Question>
     fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int) : Question?
     fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean
 }
 
-class GetQuizRepoProvider() {
+class GetQuizRepoProvider {
     private var instance: QuizRepo? = null
+
     fun getInstance(): QuizRepo {
         if (instance == null) {
             instance = QuizRepoImpl()
         }
         return instance!!
+    }
+
+    fun setInstance(repo: QuizRepo) {
+        instance = repo
     }
 }
 
@@ -55,10 +60,10 @@ class QuizRepoImpl : QuizRepo {
         }
     }
 
-    override fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, id: Int, choicesFalse: List<String>, text: String): Int {
+    override fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String): Int {
         val questionId = uniqueQuestionId(quizId)
         val question = QuestionMultipleChoice(choicesTrue, choicesFalse, questionId, text)
-        val quiz = allQuizzes.find { it.id == id }
+        val quiz = allQuizzes.find { it.id == quizId }
         if (quiz != null) {
             val updatedQuestions = quiz.questions + question
             allQuizzes[allQuizzes.indexOf(quiz)] = quiz.copy(questions = updatedQuestions)
@@ -66,10 +71,10 @@ class QuizRepoImpl : QuizRepo {
         return questionId
     }
 
-    override fun createTrueFalseQuestion(quizId: Int, answer: Boolean, id: Int, text: String): Int {
+    override fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String): Int {
         val questionId = uniqueQuestionId(quizId)
         val question = QuestionTrueFalse(answer, questionId, text)
-        val quiz = allQuizzes.find { it.id == id }
+        val quiz = allQuizzes.find { it.id == quizId }
         if (quiz != null) {
             val updatedQuestions = quiz.questions + question
             allQuizzes[allQuizzes.indexOf(quiz)] = quiz.copy(questions = updatedQuestions)

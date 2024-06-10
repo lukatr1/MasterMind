@@ -33,7 +33,7 @@ class QuizRepoUnitTest {
     }
 
     @Test
-    fun QuizIsDeletedFromRepo() {
+    fun quizIsDeletedFromRepo() {
         val quizRepoProvider = GetQuizRepoProvider()
         val quizRepo = quizRepoProvider.getInstance()
         val quizId = quizRepo.createQuiz("Quiz 1")
@@ -41,7 +41,7 @@ class QuizRepoUnitTest {
         assertEquals( 0, quizRepo.getAllQuizzes().size)
     }
     @Test
-    fun CorrectQuizIsDeletedFromRepo() {
+    fun correctQuizIsDeletedFromRepo() {
         val quizRepoProvider = GetQuizRepoProvider()
         val quizRepo = quizRepoProvider.getInstance()
         val quizId1 = quizRepo.createQuiz("Quiz to delete")
@@ -59,7 +59,7 @@ class QuizRepoUnitTest {
         assertEquals(1, quizRepo.getAllQuizzes().size)
     }
     @Test
-    fun IdsAreUnique() {
+    fun idsAreUnique() {
         val quizRepoProvider = GetQuizRepoProvider()
         val quizRepo = quizRepoProvider.getInstance()
         val quizId1 = quizRepo.createQuiz("Quiz 1")
@@ -67,7 +67,7 @@ class QuizRepoUnitTest {
         assertNotEquals(quizId1, quizId2)
     }
     @Test
-    fun GetQuizByIdReturnsCorrectQuiz() {
+    fun getQuizByIdReturnsCorrectQuiz() {
         val quizRepoProvider = GetQuizRepoProvider()
         val quizRepo = quizRepoProvider.getInstance()
         val quizId = quizRepo.createQuiz("Quiz 1")
@@ -89,7 +89,6 @@ class QuizRepoQuestionsTest {
         val questionId = quizRepo.createMultipleChoiceQuestion(
             quizId,
             choicesTrue = listOf("Correct answer"),
-            id = quizId,
             choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
             text = "Sample Question"
         )
@@ -102,7 +101,6 @@ class QuizRepoQuestionsTest {
         val questionId = quizRepo.createMultipleChoiceQuestion(
             quizId,
             choicesTrue = listOf("Correct answer"),
-            id = quizId,
             choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
             text = "Sample Question"
         )
@@ -116,7 +114,6 @@ class QuizRepoQuestionsTest {
         quizRepo.createMultipleChoiceQuestion(
             quizId,
             choicesTrue = listOf("Correct answer"),
-            id = quizId,
             choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
             text = "Sample Multiple Choice Question"
         )
@@ -131,7 +128,6 @@ class QuizRepoQuestionsTest {
         quizRepo.createTrueFalseQuestion(
             quizId,
             answer = true,
-            id = quizId,
             text = "Sample True/False Question"
         )
         val questions = quizRepo.getQuestionsByQuizId(quizId)
@@ -146,14 +142,12 @@ class QuizRepoQuestionsTest {
         quizRepo.createMultipleChoiceQuestion(
             quizId,
             choicesTrue = listOf("Correct answer"),
-            id = quizId,
             choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
             text = "Sample Multiple Choice Question"
         )
         quizRepo.createTrueFalseQuestion(
             quizId,
             answer = false,
-            id = quizId,
             text = "Sample True/False Question"
         )
         val questions = quizRepo.getQuestionsByQuizId(quizId)
@@ -173,14 +167,12 @@ class QuizRepoQuestionsTest {
         val questionId1 = quizRepo.createMultipleChoiceQuestion(
             quizId,
             choicesTrue = listOf("Correct answer"),
-            id = quizId,
             choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
             text = "Sample Question 1"
         )
         val questionId2 = quizRepo.createTrueFalseQuestion(
             quizId,
             answer = true,
-            id = quizId,
             text = "Sample Question 2"
         )
         assertNotEquals(questionId1, questionId2)
@@ -191,7 +183,6 @@ class QuizRepoQuestionsTest {
         val questionId = quizRepo.createMultipleChoiceQuestion(
             quizId,
             choicesTrue = listOf("Correct answer"),
-            id = quizId,
             choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
             text = "Original Question Text"
         )
@@ -209,7 +200,6 @@ class QuizRepoQuestionsTest {
         val questionId = quizRepo.createMultipleChoiceQuestion(
             quizId,
             choicesTrue = listOf("Correct answer"),
-            id = quizId,
             choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
             text = "Original Question Text"
         )
@@ -227,7 +217,6 @@ class QuizRepoQuestionsTest {
         quizRepo.createMultipleChoiceQuestion(
             quizId,
             choicesTrue = listOf("Correct answer"),
-            id = quizId,
             choicesFalse = listOf("Wrong answer 1", "Wrong answer 2"),
             text = "Original Question Text"
         )
