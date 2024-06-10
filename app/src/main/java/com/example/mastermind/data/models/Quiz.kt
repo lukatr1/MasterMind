@@ -1,6 +1,6 @@
-package com.example.mastermind.data
+package com.example.mastermind.data.models
 
-data class DataQuiz(
+data class Quiz(
     val id: Int,
     val name: String,
     val questions: List<Question>

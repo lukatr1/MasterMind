@@ -1,4 +1,4 @@
-package com.example.mastermind.data
+package com.example.mastermind.data.models
 
 open class Question(
     open val id: Int,
