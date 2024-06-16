@@ -3,6 +3,7 @@ package com.example.mastermind
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import cafe.adriel.voyager.navigator.Navigator
@@ -16,25 +17,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MasterMindTheme {
-                App()
+                    App()
             }
         }
     }
 }
 
-
+@Preview(showBackground = true)
 @Composable
 fun App() {
     MasterMindTheme {
+        Surface {
+            Navigator(StartingScreen())
+        }
         //specified start destination
-        Navigator(StartingScreen())
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MasterMindTheme {
-        App()
-    }
-}

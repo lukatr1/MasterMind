@@ -19,7 +19,7 @@ class StartingScreen : Screen {
             .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Button(onClick = {navigator?.push(HomeScreen(10)) }) {
+            Button(onClick = {navigator?.push(HomeScreen()) }) {
                 Text(text = "This is the StartingScreen")
             }
         }
