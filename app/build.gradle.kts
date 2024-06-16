@@ -50,6 +50,15 @@ android {
 }
 
 dependencies {
+    val voyagerVersion = "1.1.0-beta02"
+    // voyager dependencies
+    implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
+    implementation("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
+    implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
+
+
+
+    implementation("com.github.alorma.compose-settings:ui-tiles:2.2.0")
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
