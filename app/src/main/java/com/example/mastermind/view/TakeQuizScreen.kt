@@ -122,6 +122,5 @@ data class TakeQuizScreen(val quizId: Int) : Screen {
                     color = Color.White
                 )
             }
-
     }
 }

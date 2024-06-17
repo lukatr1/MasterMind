@@ -15,6 +15,10 @@ class SeeQuizzesScreenViewModel : ViewModel() {
     val quizzes: LiveData<List<Quiz>>
         get() = _quizzes
 
+    init {
+        getAllQuizzes()
+    }
+
     fun getAllQuizzes() {
         _quizzes.value = quizRepo.getAllQuizzes()
     }

@@ -69,7 +69,7 @@ class SeeQuizzesScreen : Screen {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         items(quizzes) { quiz ->
-                            QuizItem(quiz = quiz, onClick = { navigation?.push(TakeQuizScreen(quiz.id))  })
+                            QuizItem(quiz = quiz, onClick = { navigation?.push(TakeQuizScreen(quiz.id)) })
                             Spacer(modifier = Modifier.height(14.dp))
                         }
                     }
