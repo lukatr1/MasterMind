@@ -56,12 +56,15 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
     implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
 
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
+    implementation("androidx.compose.ui:ui:1.6.8")
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
 
     implementation("com.github.alorma.compose-settings:ui-tiles:2.2.0")
 
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.compose.ui:ui")

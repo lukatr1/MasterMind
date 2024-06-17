@@ -80,9 +80,9 @@ fun PoleButton(text: String, color: Color, onClick: () -> Unit) {
         ) {
             Text(
                 text = text,
-                color = Color.DarkGray, // Set text color to black
-                fontSize = 18.sp, // Set text size to 18 sp
-                fontWeight = FontWeight.Bold // Optional: make text bold
+                color = Color.DarkGray,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
