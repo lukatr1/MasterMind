@@ -19,6 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,7 +54,7 @@ data class TakeQuizScreen(val quizId: Int) : Screen {
         ) {
             quiz?.let { q ->
                 Text(
-                    text = "Quiz Name: ${q.name}",
+                    text = " ${q.name}",
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -69,39 +72,41 @@ data class TakeQuizScreen(val quizId: Int) : Screen {
     fun QuestionItem(question: Question) {
         Column {
             Text(
-                text = question.text,
+                text = question.id.toString() + ". " + question.text,
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
             when (question) {
                 is QuestionMultipleChoice -> {
-                    question.choicesTrue.forEach { choice ->
-                        AnswerCard(choice = choice)
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    question.choicesFalse.forEach { choice ->
-                        AnswerCard(choice = choice)
+                    val shuffledChoices = (question.choicesTrue + question.choicesFalse).shuffled() // shuffle cards
+                    shuffledChoices.forEach { choice ->
+                        AnswerCard(choice = choice, isCorrect = question.choicesTrue.contains(choice))
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
                 is QuestionTrueFalse -> {
-                    AnswerCard(choice = "True")
+                    val trueFalseChoices = listOf("True", "False").shuffled() // shuffle cards
+                    AnswerCard(choice = trueFalseChoices[0], isCorrect = true)
                     Spacer(modifier = Modifier.height(8.dp))
-                    AnswerCard(choice = "False")
+                    AnswerCard(choice = trueFalseChoices[1], isCorrect = false)
                 }
+            }
             }
         }
     }
 
     @Composable
-    fun AnswerCard(choice: String) {
+    fun AnswerCard(choice: String, isCorrect: Boolean) {
+        var backgroundColor by remember { mutableStateOf(Color.hsl(189F, 1F, 0.4F)) }
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* TODO: Handle click */ }
-                .padding(8.dp),
+                .clickable {
+                    backgroundColor = if (isCorrect) Color.Green else Color.Red
+                },
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondary
+                containerColor = backgroundColor
             ),
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
@@ -117,6 +122,6 @@ data class TakeQuizScreen(val quizId: Int) : Screen {
                     color = Color.White
                 )
             }
-        }
+
     }
 }

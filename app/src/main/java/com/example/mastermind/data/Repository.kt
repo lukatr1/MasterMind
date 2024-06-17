@@ -128,8 +128,8 @@ class QuizRepoImpl : QuizRepo {
         val quiz1Id = createQuiz("Quiz 1")
         createMultipleChoiceQuestion(
             quiz1Id,
-            listOf("Choice A", "Choice B"),
-            listOf("Choice C", "Choice D"),
+            listOf("4"),
+            listOf("2", "0", "1"),
             "What is 2 + 2?"
         )
         createTrueFalseQuestion(
@@ -141,8 +141,8 @@ class QuizRepoImpl : QuizRepo {
         val quiz2Id = createQuiz("Quiz 2")
         createMultipleChoiceQuestion(
             quiz2Id,
-            listOf("Choice A", "Choice B"),
-            listOf("Choice C", "Choice D"),
+            listOf("Paris"),
+            listOf("Bern", "Vienna"),
             "What is the capital of France?"
         )
         createTrueFalseQuestion(
@@ -154,9 +154,9 @@ class QuizRepoImpl : QuizRepo {
         val quiz4Id = createQuiz("Quiz 3")
         createMultipleChoiceQuestion(
             quiz4Id,
-            listOf("Choice A", "Choice B"),
-            listOf("Choice C", "Choice D"),
-            "What is the capital of Spain?"
+            listOf("The Danish krone"),
+            listOf("Yen", "Euro"),
+            "What is the currency of Denmark? ?"
         )
     }
 }
