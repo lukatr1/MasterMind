@@ -16,10 +16,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +46,7 @@ class SeeQuizzesScreen : Screen {
         val navigation = LocalNavigator.current
         val viewModel: SeeQuizzesScreenViewModel = viewModel()
         val quizzes by viewModel.quizzes.observeAsState(initial = emptyList())
+        val searchText = remember { mutableStateOf("") }
 
         // Fetch quizzes when the screen is first created
         LaunchedEffect(Unit) {
@@ -54,21 +57,33 @@ class SeeQuizzesScreen : Screen {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            TextField(
+                value = searchText.value,
+                onValueChange = { searchText.value = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                placeholder = { Text("Search quizzes by name...") }
+            )
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.TopCenter
             ) {
-                // Display list of quizzes
+                // Display filtered list of quizzes
                 if (quizzes.isEmpty()) {
                     Text(text = "No quizzes available.")
                 } else {
                     LazyColumn(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        items(quizzes) { quiz ->
+                        val filteredQuizzes = quizzes.filter {
+                            it.name.contains(searchText.value, ignoreCase = true)
+                        }
+                        items(filteredQuizzes) { quiz ->
                             QuizItem(quiz = quiz, onClick = { navigation?.push(TakeQuizScreen(quiz.id)) })
                             Spacer(modifier = Modifier.height(14.dp))
                         }

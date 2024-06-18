@@ -94,12 +94,12 @@ data class TakeQuizScreen(val quizId: Int) : Screen {
                         listOf(question.answer, question.answer.not()).shuffled()
 
                     AnswerCard(
-                        choice = trueFalseChoices[0].toString(),
+                        choice = trueFalseChoices[0].toString().uppercase(),
                         isCorrect = trueFalseChoices[0] == question.answer
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     AnswerCard(
-                        choice = trueFalseChoices[1].toString(),
+                        choice = trueFalseChoices[1].toString().uppercase(),
                         isCorrect = trueFalseChoices[1] == question.answer
                     )
                 }
