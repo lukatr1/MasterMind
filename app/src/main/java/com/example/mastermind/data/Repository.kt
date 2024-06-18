@@ -132,6 +132,12 @@ class QuizRepoImpl : QuizRepo {
             listOf("2", "0", "1"),
             "What is 2 + 2?"
         )
+        createMultipleChoiceQuestion(
+            quiz1Id,
+            listOf("True", "True"),
+            listOf("False", "False"),
+            "What color is the sky?"
+        )
         createTrueFalseQuestion(
             quiz1Id,
             true,
