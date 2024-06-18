@@ -135,8 +135,19 @@ class QuizRepoImpl : QuizRepo {
         createTrueFalseQuestion(
             quiz1Id,
             true,
-            "Is the sun hot?"
+            "Is the Earth round?"
         )
+        createTrueFalseQuestion(
+            quiz1Id,
+            true,
+            "TRUE is correct"
+        )
+        createTrueFalseQuestion(
+            quiz1Id,
+            false,
+            "FALSE is correct"
+        )
+
 
         val quiz2Id = createQuiz("Quiz 2")
         createMultipleChoiceQuestion(

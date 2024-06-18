@@ -78,49 +78,62 @@ data class TakeQuizScreen(val quizId: Int) : Screen {
             Spacer(modifier = Modifier.height(8.dp))
             when (question) {
                 is QuestionMultipleChoice -> {
-                    val shuffledChoices = (question.choicesTrue + question.choicesFalse).shuffled() // shuffle cards
+                    val shuffledChoices =
+                        (question.choicesTrue + question.choicesFalse).shuffled() // shuffle cards
                     shuffledChoices.forEach { choice ->
-                        AnswerCard(choice = choice, isCorrect = question.choicesTrue.contains(choice))
+                        AnswerCard(
+                            choice = choice,
+                            isCorrect = question.choicesTrue.contains(choice)
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
+
                 is QuestionTrueFalse -> {
-                    val trueFalseChoices = listOf("True", "False").shuffled() // shuffle cards
-                    AnswerCard(choice = trueFalseChoices[0], isCorrect = true)
+                    val trueFalseChoices =
+                        listOf(question.answer, question.answer.not()).shuffled()
+
+                    AnswerCard(
+                        choice = trueFalseChoices[0].toString(),
+                        isCorrect = trueFalseChoices[0] == question.answer
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    AnswerCard(choice = trueFalseChoices[1], isCorrect = false)
+                    AnswerCard(
+                        choice = trueFalseChoices[1].toString(),
+                        isCorrect = trueFalseChoices[1] == question.answer
+                    )
                 }
-            }
             }
         }
     }
+}
 
-    @Composable
-    fun AnswerCard(choice: String, isCorrect: Boolean) {
-        var backgroundColor by remember { mutableStateOf(Color.hsl(189F, 1F, 0.4F)) }
+@Composable
+fun AnswerCard(choice: String, isCorrect: Boolean) {
+    var backgroundColor by remember { mutableStateOf(Color.hsl(189F, 1F, 0.4F)) }
 
-        Card(
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                backgroundColor = if (isCorrect) Color.Green else Color.Red
+            },
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        ),
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    backgroundColor = if (isCorrect) Color.Green else Color.Red
-                },
-            colors = CardDefaults.cardColors(
-                containerColor = backgroundColor
-            ),
-            elevation = CardDefaults.cardElevation(8.dp)
+                .padding(16.dp)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = choice,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White
-                )
-            }
+            Text(
+                text = choice,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color.White
+            )
+        }
     }
 }

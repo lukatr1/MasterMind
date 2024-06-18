@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,11 +30,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import com.example.mastermind.viewModel.CreateQuizScreenViewModel
+import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
+
 class CreateQuizScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
         val viewModel: CreateQuizScreenViewModel = viewModel()
+        val seeQuizzesViewModel: SeeQuizzesScreenViewModel = viewModel()
 
         var quizName by remember { mutableStateOf(TextFieldValue("")) }
         var questionType by remember { mutableStateOf<QuestionType?>(null) }
@@ -45,9 +49,7 @@ class CreateQuizScreen : Screen {
         var showError by remember { mutableStateOf(false) }
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -80,6 +82,7 @@ class CreateQuizScreen : Screen {
                         showError = true
                     } else {
                         quizId = viewModel.createQuiz(quizName.text)
+                        seeQuizzesViewModel.updateQuizzes() // Update quizzes list
                     }
                 }) {
                     Text(text = "Continue")
@@ -167,12 +170,13 @@ class CreateQuizScreen : Screen {
                             falseChoices = TextFieldValue("")
                             trueFalseAnswer = true
                             questionType = null
+                            seeQuizzesViewModel.updateQuizzes() // Update quizzes list
                         }) {
                             Text("Add Question")
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = { navigator?.pop() }) {
-                            Text(text = "Finish")
+                            Text("Done")
                         }
                     }
                 }

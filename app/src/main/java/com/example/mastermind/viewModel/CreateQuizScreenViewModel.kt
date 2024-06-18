@@ -11,7 +11,8 @@ class CreateQuizScreenViewModel : ViewModel() {
     private val quizRepo: QuizRepo = GetQuizRepoProvider().getInstance()
 
     fun createQuiz(name: String): Int {
-        return quizRepo.createQuiz(name)
+        val id = quizRepo.createQuiz(name)
+        return id
     }
 
     fun createMultipleChoiceQuestion(

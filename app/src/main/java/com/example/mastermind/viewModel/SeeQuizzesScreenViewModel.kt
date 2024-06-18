@@ -8,7 +8,6 @@ import com.example.mastermind.data.QuizRepo
 import com.example.mastermind.data.models.Quiz
 
 class SeeQuizzesScreenViewModel : ViewModel() {
-
     private val quizRepo: QuizRepo = GetQuizRepoProvider().getInstance()
 
     private val _quizzes = MutableLiveData<List<Quiz>>()
@@ -21,5 +20,9 @@ class SeeQuizzesScreenViewModel : ViewModel() {
 
     fun getAllQuizzes() {
         _quizzes.value = quizRepo.getAllQuizzes()
+    }
+
+    fun updateQuizzes() {
+        _quizzes.postValue(quizRepo.getAllQuizzes())
     }
 }
