@@ -25,4 +25,12 @@ class SeeQuizzesScreenViewModel : ViewModel() {
     fun updateQuizzes() {
         _quizzes.postValue(quizRepo.getAllQuizzes())
     }
+    fun createMultipleChoiceQuestion(
+        quizId: Int,
+        choicesTrue: List<String>,
+        choicesFalse: List<String>,
+        text: String
+    ) {
+        quizRepo.createMultipleChoiceQuestion(quizId, choicesTrue, choicesFalse, text)
+    }
 }

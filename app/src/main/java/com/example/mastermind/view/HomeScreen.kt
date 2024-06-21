@@ -24,12 +24,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
 class HomeScreen() : Screen {
     @Composable
     override fun Content() {
+        val seeQuizzesViewModel: SeeQuizzesScreenViewModel = viewModel()
         val navigator = LocalNavigator.current
         Column(
             modifier = Modifier
@@ -42,6 +45,7 @@ class HomeScreen() : Screen {
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 PoleButton(text = "See Quizzes", color = Color.hsl(42f, 1f, 0.5f), onClick = {
+                    seeQuizzesViewModel.updateQuizzes()
                     navigator?.push(SeeQuizzesScreen())
                 })
                 PoleButton(text = "Create Quiz", color =Color.hsl(13F, 1F, 0.5F) , onClick = {

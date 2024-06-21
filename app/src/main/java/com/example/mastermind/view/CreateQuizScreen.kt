@@ -1,5 +1,6 @@
 package com.example.mastermind.view
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,9 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.example.mastermind.data.models.Quiz
 import com.example.mastermind.viewModel.CreateQuizScreenViewModel
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
-
+import com.example.mastermind.data.models.log
 class CreateQuizScreen : Screen {
     @Composable
     override fun Content() {
@@ -42,14 +44,16 @@ class CreateQuizScreen : Screen {
         var quizName by remember { mutableStateOf(TextFieldValue("")) }
         var questionType by remember { mutableStateOf<QuestionType?>(null) }
         var questionText by remember { mutableStateOf(TextFieldValue("")) }
-        var trueChoices by remember { mutableStateOf(TextFieldValue("")) }
-        var falseChoices by remember { mutableStateOf(TextFieldValue("")) }
+        var choicesTrue by remember { mutableStateOf(TextFieldValue("")) }
+        var choicesFalse by remember { mutableStateOf(TextFieldValue("")) }
         var trueFalseAnswer by remember { mutableStateOf(true) }
         var quizId by remember { mutableIntStateOf(-1) }
         var showError by remember { mutableStateOf(false) }
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -64,6 +68,8 @@ class CreateQuizScreen : Screen {
                     onValueChange = {
                         quizName = it
                         showError = false
+                        Log.d("CreateQuizScreen", "Quiz Name: ${quizName.text}")
+                        log("Quiz Name: ${quizName.text}")
                     },
                     label = { Text("Quiz Name") },
                     modifier = Modifier.fillMaxWidth(),
@@ -82,10 +88,10 @@ class CreateQuizScreen : Screen {
                         showError = true
                     } else {
                         quizId = viewModel.createQuiz(quizName.text)
-                        seeQuizzesViewModel.updateQuizzes() // Update quizzes list
+                        //seeQuizzesViewModel.updateQuizzes() // Update quizzes list
                     }
                 }) {
-                    Text(text = "Continue")
+                    Text(text = "Create Quiz")
                 }
             } else {
                 Text(
@@ -119,15 +125,15 @@ class CreateQuizScreen : Screen {
                         when (type) {
                             QuestionType.MultipleChoice -> {
                                 OutlinedTextField(
-                                    value = trueChoices,
-                                    onValueChange = { trueChoices = it },
+                                    value = choicesTrue,
+                                    onValueChange = { choicesTrue = it },
                                     label = { Text("Correct Answers (comma separated)") },
                                     modifier = Modifier.fillMaxWidth()
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 OutlinedTextField(
-                                    value = falseChoices,
-                                    onValueChange = { falseChoices = it },
+                                    value = choicesFalse,
+                                    onValueChange = { choicesFalse = it },
                                     label = { Text("Incorrect Answers (comma separated)") },
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -155,8 +161,8 @@ class CreateQuizScreen : Screen {
                             when (type) {
                                 QuestionType.MultipleChoice -> viewModel.createMultipleChoiceQuestion(
                                     quizId,
-                                    trueChoices.text.split(",").map { it.trim() },
-                                    falseChoices.text.split(",").map { it.trim() },
+                                    choicesTrue.text.split(",").map { it.trim() },
+                                    choicesFalse.text.split(",").map { it.trim() },
                                     questionText.text
                                 )
                                 QuestionType.TrueFalse -> viewModel.createTrueFalseQuestion(
@@ -166,8 +172,8 @@ class CreateQuizScreen : Screen {
                                 )
                             }
                             questionText = TextFieldValue("")
-                            trueChoices = TextFieldValue("")
-                            falseChoices = TextFieldValue("")
+                            choicesTrue = TextFieldValue("")
+                            choicesFalse = TextFieldValue("")
                             trueFalseAnswer = true
                             questionType = null
                             seeQuizzesViewModel.updateQuizzes() // Update quizzes list
@@ -175,7 +181,10 @@ class CreateQuizScreen : Screen {
                             Text("Add Question")
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { navigator?.pop() }) {
+                        Button(onClick = {
+                            viewModel.createQuiz(quizName.text)
+                            navigator?.pop()
+                        }) {
                             Text("Done")
                         }
                     }
@@ -184,7 +193,6 @@ class CreateQuizScreen : Screen {
         }
     }
 }
-
 enum class QuestionType {
     MultipleChoice, TrueFalse
 }

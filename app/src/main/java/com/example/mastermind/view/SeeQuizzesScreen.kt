@@ -36,6 +36,7 @@ import com.example.mastermind.data.QuizRepo
 import com.example.mastermind.data.models.QuestionMultipleChoice
 import com.example.mastermind.data.models.QuestionTrueFalse
 import com.example.mastermind.data.models.Quiz
+import com.example.mastermind.data.models.log
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 import com.example.mastermind.viewModel.TakeQuizScreenViewModel
 
@@ -51,6 +52,7 @@ class SeeQuizzesScreen : Screen {
         // Fetch quizzes when the screen is first created
         LaunchedEffect(Unit) {
             viewModel.getAllQuizzes()
+            log("Quizzes: $quizzes")
         }
 
         Column(

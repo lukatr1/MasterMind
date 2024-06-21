@@ -123,6 +123,7 @@ class QuizRepoImpl : QuizRepo {
 
     // DUMMY DATA
 
+
     init {
         // Initialize with dummy data
         val quiz1Id = createQuiz("Quiz 1")
@@ -168,12 +169,20 @@ class QuizRepoImpl : QuizRepo {
             "Is Earth flat?"
         )
 
-        val quiz4Id = createQuiz("Quiz 3")
+        val quiz3Id = createQuiz("Quiz 3")
         createMultipleChoiceQuestion(
-            quiz4Id,
+            quiz3Id,
             listOf("The Danish krone"),
             listOf("Yen", "Euro"),
             "What is the currency of Denmark? ?"
+        )
+
+        val quiz4Id = createQuiz("Quiz 4")
+        createMultipleChoiceQuestion(
+            quiz4Id,
+            listOf("True", "True"),
+            listOf("False", "False"),
+            "Trues are Correct"
         )
     }
 }
