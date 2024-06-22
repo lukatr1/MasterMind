@@ -1,5 +1,6 @@
 package com.example.mastermind.viewModel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,8 +11,11 @@ import com.example.mastermind.data.models.Quiz
 import kotlinx.coroutines.launch
 
 
-class CreateQuizScreenViewModel : ViewModel() {
-    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance()
+class CreateQuizScreenViewModel(private var context: Context) : ViewModel() {
+    private fun getContext () : Context {
+        return context
+    }
+    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(getContext())
 
     private val _quizzes = MutableLiveData<List<Quiz>>()
     val quizzes: LiveData<List<Quiz>>
@@ -28,15 +32,21 @@ class CreateQuizScreenViewModel : ViewModel() {
         choicesFalse: List<String>,
         text: String
     ) {
-        quizRepo.createMultipleChoiceQuestion(quizId, choicesTrue, choicesFalse, text)
+        viewModelScope.launch {
+            quizRepo.createMultipleChoiceQuestion(quizId, choicesTrue, choicesFalse, text)
+        }
     }
 
     fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String) {
-        quizRepo.createTrueFalseQuestion(quizId, answer, text)
+        viewModelScope.launch {
+            quizRepo.createTrueFalseQuestion(quizId, answer, text)
+        }
     }
 
     fun updateQuizzes() {
-        _quizzes.postValue(quizRepo.getAllQuizzes())
+        viewModelScope.launch {
+            _quizzes.postValue(quizRepo.getAllQuizzes())
+        }
     }
 
 }

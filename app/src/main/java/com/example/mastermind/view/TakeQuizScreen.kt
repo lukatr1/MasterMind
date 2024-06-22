@@ -1,5 +1,6 @@
 package com.example.mastermind.view
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,7 +43,10 @@ import com.example.mastermind.data.models.QuestionMultipleChoice
 import com.example.mastermind.data.models.QuestionTrueFalse
 import com.example.mastermind.viewModel.TakeQuizScreenViewModel
 
-data class TakeQuizScreen(val quizId: Int) : Screen {
+data class TakeQuizScreen(val quizId: Int, private var context: Context) : Screen {
+    private fun getContext () : Context {
+        return context
+    }
 
     @Composable
     override fun Content() {
@@ -112,7 +116,7 @@ data class TakeQuizScreen(val quizId: Int) : Screen {
                     Button(
                         onClick = {
                             navigator?.pop()
-                            navigator?.push(HomeScreen())
+                            navigator?.push(HomeScreen(getContext()))
                             showQuizCompletedPopup = false
                         }
                     ) {

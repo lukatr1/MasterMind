@@ -51,6 +51,14 @@ android {
 }
 
 dependencies {
+    val room_version = "2.6.1"
+
+    implementation ("androidx.room:room-runtime:$room_version")
+    annotationProcessor ("androidx.room:room-compiler:$room_version")
+    kapt ("androidx.room:room-compiler:$room_version")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2")
+
+
     val voyagerVersion = "1.1.0-beta02"
     // voyager dependencies
     implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
@@ -64,7 +72,7 @@ dependencies {
 
     implementation("com.github.alorma.compose-settings:ui-tiles:2.2.0")
     implementation("androidx.room:room-runtime:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+    //kapt("androidx.room:room-compiler:2.6.1")
     implementation("com.google.code.gson:gson:2.10")
 
 

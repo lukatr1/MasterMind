@@ -1,5 +1,6 @@
 package com.example.mastermind.view
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,7 +48,10 @@ import com.example.mastermind.data.models.log
 import com.example.mastermind.viewModel.BookmarkedScreenViewModel
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
-class BookmarkedScreen : Screen {
+/*class BookmarkedScreen(private var context: Context) : Screen {
+    private fun getContext () : Context {
+        return context
+    }
 
     @Composable
     override fun Content() {
@@ -92,9 +96,11 @@ class BookmarkedScreen : Screen {
                         items(filteredQuizzes) { quiz ->
                             QuizItem(
                                 quiz = quiz,
-                                onClick = { navigation?.push(TakeQuizScreen(quiz.id)) },
-                                onUnbookmark = {
-                                    viewModel.unbookmarkQuiz(quiz)
+                                onClick = { navigation?.push(TakeQuizScreen(quiz.id, getContext())) },
+                                viewModelScope.launch {
+                                    onUnbookmark = {
+                                        viewModel.unbookmarkQuiz(quiz)
+                                    }
                                 }
                             )
                             Spacer(modifier = Modifier.height(14.dp))
@@ -149,4 +155,4 @@ class BookmarkedScreen : Screen {
             }
         }
     }
-}
+}*/

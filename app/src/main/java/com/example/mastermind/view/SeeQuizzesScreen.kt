@@ -1,5 +1,6 @@
 package com.example.mastermind.view
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,8 +45,10 @@ import com.example.mastermind.data.models.Quiz
 import com.example.mastermind.data.models.log
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
-class SeeQuizzesScreen : Screen {
-
+class SeeQuizzesScreen(private var context: Context) : Screen {
+    private fun getContext () : Context {
+        return context
+    }
     @Composable
     override fun Content() {
         val navigation = LocalNavigator.current
@@ -98,7 +101,7 @@ class SeeQuizzesScreen : Screen {
                         items(filteredQuizzes) { quiz ->
                             QuizItem(
                                 quiz = quiz,
-                                onClick = { navigation?.push(TakeQuizScreen(quiz.id)) },
+                                onClick = { navigation?.push(TakeQuizScreen(quiz.id, getContext())) },
                                 onDelete = {
                                     quizToDelete = quiz
                                     showDeleteDialog = true

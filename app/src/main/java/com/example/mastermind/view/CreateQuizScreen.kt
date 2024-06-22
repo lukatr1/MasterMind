@@ -1,5 +1,6 @@
 package com.example.mastermind.view
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,10 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.mastermind.viewModel.CreateQuizScreenViewModel
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 import com.example.mastermind.data.models.log
-class CreateQuizScreen : Screen {
+class CreateQuizScreen(private var context: Context) : Screen {
+    private fun getContext () : Context {
+        return context
+    }
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current

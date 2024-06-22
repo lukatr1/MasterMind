@@ -1,14 +1,21 @@
 package com.example.mastermind.viewModel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mastermind.data.GetQuizRepoProvider
 import com.example.mastermind.data.QuizRepo
 import com.example.mastermind.data.models.Quiz
+import kotlinx.coroutines.launch
 
-class SeeQuizzesScreenViewModel : ViewModel() {
-    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance()
+class SeeQuizzesScreenViewModel(private var context: Context) : ViewModel() {
+    private fun getContext () : Context {
+        return context
+    }
+    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(getContext())
 
     private val _quizzes = MutableLiveData<List<Quiz>>()
     val quizzes: LiveData<List<Quiz>>
@@ -19,7 +26,9 @@ class SeeQuizzesScreenViewModel : ViewModel() {
     }
 
     fun createQuiz(name: String): Int {
-        return quizRepo.createQuiz(name)
+        viewModelScope.launch {
+            return quizRepo.createQuiz(name)
+        }
     }
 
     fun getAllQuizzes() {
@@ -27,12 +36,16 @@ class SeeQuizzesScreenViewModel : ViewModel() {
     }
 
     fun updateQuizzes() {
-        _quizzes.postValue(quizRepo.getAllQuizzes())
+        viewModelScope.launch {
+            _quizzes.postValue(quizRepo.getAllQuizzes())
+        }
     }
 
     fun deleteQuiz(id: Int) {
-        quizRepo.deleteQuiz(id)
-        updateQuizzes()
+        viewModelScope.launch {
+            quizRepo.deleteQuiz(id)
+            updateQuizzes()
+        }
     }
 
     fun editQuiz(id: Int, newName: String) {

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.room.Room
 import com.example.mastermind.data.models.*
 import com.example.mastermind.data.database.*
+import com.example.mastermind.viewModel.BookmarkedScreenViewModel
 
 interface QuizRepo {
     suspend fun getAllQuizzes(): List<Quiz>
@@ -17,6 +18,8 @@ interface QuizRepo {
     suspend fun getQuestionsByQuizId(quizId: Int): List<Question>
     suspend fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int) : Question?
     suspend fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean
+    suspend fun unbookmarkQuiz(quiz: Quiz)
+    fun getBookmarkedQuizzes(): List<Quiz>
 }
 
 class GetQuizRepoProvider {
@@ -45,6 +48,8 @@ class GetQuizRepoProvider {
 
 class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
 
+    private val allQuizzes = mutableListOf<Quiz>()
+
     override suspend fun getAllQuizzes(): List<Quiz> {
         return quizDao.getAllQuizzes().map { quizEntity ->
             Quiz(
@@ -55,6 +60,10 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
                 }
             )
         }
+    }
+
+    override fun getBookmarkedQuizzes(): List<Quiz> {
+        return allQuizzes.filter { it.bookmarked }
     }
 
     override suspend fun getQuizById(id: Int): Quiz {
@@ -75,6 +84,11 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
     override suspend fun createQuiz(name: String): Int {
         val quizEntity = QuizEntity(name = name)
         return quizDao.insertQuiz(quizEntity).toInt()
+    }
+
+    override suspend fun unbookmarkQuiz(quiz: Quiz) {
+        val updatedQuiz = quiz.copy(bookmarked = false)
+        allQuizzes[allQuizzes.indexOf(quiz)] = updatedQuiz
     }
 
     override suspend fun deleteQuiz(id: Int) {

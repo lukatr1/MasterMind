@@ -1,5 +1,6 @@
 package com.example.mastermind.view
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +30,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
-class HomeScreen() : Screen {
+class HomeScreen(private var context: Context) : Screen {
+    private fun getContext () : Context {
+        return context
+    }
     @Composable
     override fun Content() {
         val seeQuizzesViewModel: SeeQuizzesScreenViewModel = viewModel()
@@ -46,10 +50,10 @@ class HomeScreen() : Screen {
             ) {
                 PoleButton(text = "See Quizzes", color = Color.hsl(42f, 1f, 0.5f), onClick = {
                     seeQuizzesViewModel.updateQuizzes()
-                    navigator?.push(SeeQuizzesScreen())
+                    navigator?.push(SeeQuizzesScreen(getContext()))
                 })
                 PoleButton(text = "Create Quiz", color =Color.hsl(13F, 1F, 0.5F) , onClick = {
-                    navigator?.push(CreateQuizScreen())
+                    navigator?.push(CreateQuizScreen(getContext()))
                 })
             }
             Spacer(modifier = Modifier.height(15.dp))
@@ -58,10 +62,10 @@ class HomeScreen() : Screen {
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 PoleButton(text = "Bookmarked", color = Color.hsl(165F, 1F, 0.5F), onClick = {
-                    navigator?.push(BookmarkedScreen())
+                    navigator?.push(BookmarkedScreen(getContext()))
                 })
                 PoleButton(text = "About", color = Color.hsl(82F, 1F, 0.5F), onClick = {
-                    navigator?.push(AboutAppScreen())
+                    navigator?.push(AboutAppScreen(getContext()))
                 })
             }
         }

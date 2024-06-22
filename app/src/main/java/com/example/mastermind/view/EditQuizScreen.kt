@@ -1,5 +1,6 @@
 package com.example.mastermind.view
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,7 +28,10 @@ import com.example.mastermind.data.models.QuestionMultipleChoice
 import com.example.mastermind.data.models.QuestionTrueFalse
 import com.example.mastermind.viewModel.EditQuizScreenViewModel
 
-class EditQuizScreen(private val quizId: Int) : Screen {
+class EditQuizScreen(private val quizId: Int, private var context: Context) : Screen {
+    private fun getContext () : Context {
+        return context
+    }
 
     @Composable
     override fun Content() {

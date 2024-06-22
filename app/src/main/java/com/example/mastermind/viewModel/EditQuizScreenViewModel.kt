@@ -1,5 +1,6 @@
 package com.example.mastermind.viewModel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mastermind.data.GetQuizRepoProvider
@@ -10,8 +11,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class EditQuizScreenViewModel : ViewModel() {
-    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance()
+class EditQuizScreenViewModel(private var context: Context) : ViewModel() {
+    private fun getContext () : Context {
+        return context
+    }
+    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(getContext())
 
     private val _quiz = MutableStateFlow<Quiz?>(null)
     val quiz: StateFlow<Quiz?> get() = _quiz
