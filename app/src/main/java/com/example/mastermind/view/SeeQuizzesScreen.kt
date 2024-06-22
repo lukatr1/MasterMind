@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -52,7 +53,7 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
     @Composable
     override fun Content() {
         val navigation = LocalNavigator.current
-        val viewModel: SeeQuizzesScreenViewModel = viewModel()
+        val viewModel = SeeQuizzesScreenViewModel(getContext())
         val quizzes by viewModel.quizzes.observeAsState(initial = emptyList())
         val searchText = remember { mutableStateOf("") }
         var showDeleteDialog by remember { mutableStateOf(false) }

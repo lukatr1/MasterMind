@@ -11,11 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class EditQuizScreenViewModel(private var context: Context) : ViewModel() {
-    private fun getContext () : Context {
-        return context
-    }
-    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(getContext())
+class EditQuizScreenViewModel(context: Context) : ViewModel() {
+
+    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(context)
 
     private val _quiz = MutableStateFlow<Quiz?>(null)
     val quiz: StateFlow<Quiz?> get() = _quiz
@@ -37,9 +35,11 @@ class EditQuizScreenViewModel(private var context: Context) : ViewModel() {
     }
 
     fun saveChanges() {
-        _quiz.value?.let { quiz ->
-            quiz.questions.forEach { question ->
-                quizRepo.updateQuestion(quiz.id, question.id, question.text)
+        viewModelScope.launch {
+            _quiz.value?.let { quiz ->
+                quiz.questions.forEach { question ->
+                    quizRepo.updateQuestion(quiz.id, question.id, question.text)
+                }
             }
         }
     }

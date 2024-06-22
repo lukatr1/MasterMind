@@ -11,17 +11,15 @@ import com.example.mastermind.data.models.Quiz
 import kotlinx.coroutines.launch
 
 
-class CreateQuizScreenViewModel(private var context: Context) : ViewModel() {
-    private fun getContext () : Context {
-        return context
-    }
-    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(getContext())
+class CreateQuizScreenViewModel(context: Context) : ViewModel() {
+
+    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(context)
 
     private val _quizzes = MutableLiveData<List<Quiz>>()
     val quizzes: LiveData<List<Quiz>>
         get() = _quizzes
 
-    fun createQuiz(name: String): Int {
+    suspend fun createQuiz(name: String): Int {
         val id = quizRepo.createQuiz(name)
         return id
     }

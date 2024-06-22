@@ -102,7 +102,6 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
     override suspend fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String): Int {
         // Create the base question entity
         val questionEntity = QuestionEntity(
-            id = -1,
             text = text,
             quizId = quizId,
             questionType = "multiple_choice",
@@ -126,7 +125,6 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
             quizId = quizId,
             questionType = "true_false",
             answer = answer,
-            id = -1
         )
 
         // Insert the question and get its ID

@@ -48,7 +48,7 @@ import com.example.mastermind.data.models.log
 import com.example.mastermind.viewModel.BookmarkedScreenViewModel
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
-/*class BookmarkedScreen(private var context: Context) : Screen {
+class BookmarkedScreen(private var context: Context) : Screen {
     private fun getContext () : Context {
         return context
     }
@@ -56,7 +56,7 @@ import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
     @Composable
     override fun Content() {
         val navigation = LocalNavigator.current
-        val viewModel: BookmarkedScreenViewModel = viewModel()
+        val viewModel = BookmarkedScreenViewModel(getContext())
         val bookmarkedQuizzes by viewModel.bookmarkedQuizzes.observeAsState(initial = emptyList())
         val searchText = remember { mutableStateOf("") }
 
@@ -97,11 +97,10 @@ import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
                             QuizItem(
                                 quiz = quiz,
                                 onClick = { navigation?.push(TakeQuizScreen(quiz.id, getContext())) },
-                                viewModelScope.launch {
-                                    onUnbookmark = {
-                                        viewModel.unbookmarkQuiz(quiz)
-                                    }
-                                }
+
+                                onUnbookmark = { viewModel.unbookmarkQuiz(quiz) }
+
+
                             )
                             Spacer(modifier = Modifier.height(14.dp))
                         }
@@ -155,4 +154,4 @@ import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
             }
         }
     }
-}*/
+}

@@ -36,7 +36,7 @@ class HomeScreen(private var context: Context) : Screen {
     }
     @Composable
     override fun Content() {
-        val seeQuizzesViewModel: SeeQuizzesScreenViewModel = viewModel()
+        val seeQuizzesViewModel = SeeQuizzesScreenViewModel(getContext())
         val navigator = LocalNavigator.current
         Column(
             modifier = Modifier

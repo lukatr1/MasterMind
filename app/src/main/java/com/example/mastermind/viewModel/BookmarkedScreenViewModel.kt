@@ -4,15 +4,15 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.mastermind.data.GetQuizRepoProvider
 import com.example.mastermind.data.QuizRepo
 import com.example.mastermind.data.models.Quiz
+import kotlinx.coroutines.launch
 
-class BookmarkedScreenViewModel(private var context: Context) : ViewModel() {
-    private fun getContext () : Context {
-        return context
-    }
-    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(getContext())
+class BookmarkedScreenViewModel(context: Context) : ViewModel() {
+
+    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(context)
 
     private val _bookmarkedQuizzes = MutableLiveData<List<Quiz>>()
     val bookmarkedQuizzes: LiveData<List<Quiz>>
@@ -28,8 +28,9 @@ class BookmarkedScreenViewModel(private var context: Context) : ViewModel() {
         getBookmarkedQuizzes()
     }*/
 
-    suspend fun unbookmarkQuiz(quiz: Quiz) {
-        quizRepo.unbookmarkQuiz(quiz)
+    fun unbookmarkQuiz(quiz: Quiz) {
+        viewModelScope.launch {
+        quizRepo.unbookmarkQuiz(quiz)}
         getBookmarkedQuizzes()
     }
 }

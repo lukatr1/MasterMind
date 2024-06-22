@@ -6,7 +6,7 @@ import com.example.mastermind.data.Converters
 @Entity(tableName = "questions")
 open class QuestionEntity(
     @PrimaryKey(autoGenerate = true)
-    open var id: Int,
+    var id: Int = 1,
     @ColumnInfo(name = "text") var text: String,
     @ColumnInfo(name = "quiz_id") var quizId: Int,
     @ColumnInfo(name = "question_type") var questionType: String,

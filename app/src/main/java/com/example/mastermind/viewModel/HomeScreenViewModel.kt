@@ -5,10 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class HomeScreenViewModel(private var context: Context) : ViewModel() {
-    private fun getContext () : Context {
-        return context
-    }
+class HomeScreenViewModel(context: Context) : ViewModel() {
+
     private val _text = MutableLiveData<String>().apply {
         value = "MasterMind"
     }

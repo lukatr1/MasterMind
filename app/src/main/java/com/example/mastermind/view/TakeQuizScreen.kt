@@ -51,7 +51,7 @@ data class TakeQuizScreen(val quizId: Int, private var context: Context) : Scree
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel: TakeQuizScreenViewModel = viewModel()
+        val viewModel = TakeQuizScreenViewModel(getContext())
         val quiz by viewModel.quiz.observeAsState()
 
         // Track correct answers

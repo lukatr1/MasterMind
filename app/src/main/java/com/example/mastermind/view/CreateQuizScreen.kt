@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.mastermind.viewModel.CreateQuizScreenViewModel
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 import com.example.mastermind.data.models.log
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 class CreateQuizScreen(private var context: Context) : Screen {
     private fun getContext () : Context {
         return context
@@ -46,8 +49,8 @@ class CreateQuizScreen(private var context: Context) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel: CreateQuizScreenViewModel = viewModel()
-        val seeQuizzesViewModel: SeeQuizzesScreenViewModel = viewModel()
+        val viewModel = CreateQuizScreenViewModel(getContext())
+        val coroutineScope = rememberCoroutineScope()
 
         var quizName by remember { mutableStateOf(TextFieldValue("")) }
         var questionType by remember { mutableStateOf<QuestionType?>(null) }
@@ -94,8 +97,10 @@ class CreateQuizScreen(private var context: Context) : Screen {
                     if (quizName.text.isBlank()) {
                         showError = true
                     } else {
-                        quizId = viewModel.createQuiz(quizName.text)
-                        //seeQuizzesViewModel.updateQuizzes() // Update quizzes list
+                        coroutineScope.launch {
+                            quizId = viewModel.createQuiz(quizName.text)
+                            //seeQuizzesViewModel.updateQuizzes() // Update quizzes list
+                        }
                     }
                 }) {
                     Text(text = "Create Quiz")

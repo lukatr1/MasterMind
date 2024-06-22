@@ -36,7 +36,7 @@ class EditQuizScreen(private val quizId: Int, private var context: Context) : Sc
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel: EditQuizScreenViewModel = viewModel()
+        val viewModel = EditQuizScreenViewModel(getContext())
         val quiz by viewModel.quiz.collectAsState()
 
         LaunchedEffect(Unit) {
