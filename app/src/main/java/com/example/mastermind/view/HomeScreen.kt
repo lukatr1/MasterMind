@@ -57,7 +57,8 @@ class HomeScreen() : Screen {
                 modifier = Modifier,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                PoleButton(text = "PlaceHolder", color = Color.hsl(165F, 1F, 0.5F), onClick = {
+                PoleButton(text = "Bookmarked", color = Color.hsl(165F, 1F, 0.5F), onClick = {
+                    navigator?.push(BookmarkedScreen())
                 })
                 PoleButton(text = "About", color = Color.hsl(82F, 1F, 0.5F), onClick = {
                     navigator?.push(AboutAppScreen())

@@ -8,7 +8,7 @@ import com.example.mastermind.data.QuizRepo
 import com.example.mastermind.data.models.Quiz
 
 class SeeQuizzesScreenViewModel : ViewModel() {
-    private val quizRepo: QuizRepo = GetQuizRepoProvider().getInstance()
+    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance()
 
     private val _quizzes = MutableLiveData<List<Quiz>>()
     val quizzes: LiveData<List<Quiz>>
@@ -18,6 +18,10 @@ class SeeQuizzesScreenViewModel : ViewModel() {
         getAllQuizzes()
     }
 
+    fun createQuiz(name: String): Int {
+        return quizRepo.createQuiz(name)
+    }
+
     fun getAllQuizzes() {
         _quizzes.value = quizRepo.getAllQuizzes()
     }
@@ -25,6 +29,21 @@ class SeeQuizzesScreenViewModel : ViewModel() {
     fun updateQuizzes() {
         _quizzes.postValue(quizRepo.getAllQuizzes())
     }
+
+    fun deleteQuiz(id: Int) {
+        quizRepo.deleteQuiz(id)
+        updateQuizzes()
+    }
+
+    fun editQuiz(id: Int, newName: String) {
+        val quiz = quizRepo.getQuizById(id)
+        val updatedQuiz = quiz.copy(name = newName)
+        // Remove the old quiz and add the updated one
+        deleteQuiz(id)
+        quizRepo.createQuiz(updatedQuiz.name)
+        updateQuizzes()
+    }
+
     fun createMultipleChoiceQuestion(
         quizId: Int,
         choicesTrue: List<String>,

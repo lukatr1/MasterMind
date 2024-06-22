@@ -19,22 +19,18 @@ interface QuizRepo {
     fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean
 }
 
+
+
 class GetQuizRepoProvider {
-    private var instance: QuizRepo? = null
+    private val instanceRepo: QuizRepo by lazy { QuizRepoImpl }
 
-    fun getInstance(): QuizRepo {
-        if (instance == null) {
-            instance = QuizRepoImpl()
-        }
-        return instance!!
-    }
-
-    fun setInstance(repo: QuizRepo) {
-        instance = repo
+    fun getsInstance(): QuizRepo {
+        return instanceRepo
     }
 }
 
-class QuizRepoImpl : QuizRepo {
+object QuizRepoImpl : QuizRepo {
+
 
     private val allQuizzes = mutableListOf<Quiz>()
 

@@ -8,7 +8,7 @@ import com.example.mastermind.data.QuizRepo
 import com.example.mastermind.data.models.Quiz
 
 class TakeQuizScreenViewModel : ViewModel() {
-    private val quizRepo: QuizRepo = GetQuizRepoProvider().getInstance()
+    private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance()
 
     private val _quiz = MutableLiveData<Quiz>()
     val quiz: LiveData<Quiz>
