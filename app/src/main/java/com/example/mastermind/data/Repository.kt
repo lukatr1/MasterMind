@@ -1,194 +1,210 @@
 package com.example.mastermind.data
 
-import com.example.mastermind.data.models.Question
-import com.example.mastermind.data.models.QuestionMultipleChoice
-import com.example.mastermind.data.models.QuestionTrueFalse
-import com.example.mastermind.data.models.Quiz
-
+import android.content.Context
+import android.util.Log
+import androidx.room.Room
+import com.example.mastermind.data.models.*
+import com.example.mastermind.data.database.*
 
 interface QuizRepo {
-    fun getAllQuizzes(): List<Quiz>
-    fun getQuizById(id: Int): Quiz
-    fun createQuiz(name: String):Int
-    fun deleteQuiz(id: Int)
-    fun removeQuestionFromQuiz(quizId: Int, questionId: Int)
-    fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String):Int
-    fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String):Int
-    fun getQuestionsByQuizId(quizId: Int): List<Question>
-    fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int) : Question?
-    fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean
-    fun getBookmarkedQuizzes(): List<Quiz>
-    fun unbookmarkQuiz(quiz: Quiz)
+    suspend fun getAllQuizzes(): List<Quiz>
+    suspend fun getQuizById(id: Int): Quiz
+    suspend fun createQuiz(name: String):Int
+    suspend fun deleteQuiz(id: Int)
+    suspend fun removeQuestionFromQuiz(quizId: Int, questionId: Int)
+    suspend fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String):Int
+    suspend fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String):Int
+    suspend fun getQuestionsByQuizId(quizId: Int): List<Question>
+    suspend fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int) : Question?
+    suspend fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean
 }
-
-
 
 class GetQuizRepoProvider {
-    private val instanceRepo: QuizRepo by lazy { QuizRepoImpl }
+    private var instance: QuizRepo? = null
 
-    fun getsInstance(): QuizRepo {
-        return instanceRepo
+    fun getsInstance(context: Context): QuizRepo {
+        if (instance == null) {
+            instance = QuizRepoImpl(getDatabase(context).quizDao())
+        }
+        return instance!!
+    }
+
+    private fun getDatabase(context: Context): QuizDatabase {
+        return Room.databaseBuilder(
+            context.applicationContext,
+            QuizDatabase::class.java,
+            "quiz_database"
+        ).build()
+    }
+
+    fun setInstance(repo: QuizRepo) {
+        instance = repo
     }
 }
 
-object QuizRepoImpl : QuizRepo {
 
-    private val allQuizzes = mutableListOf<Quiz>()
+class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
 
-    override fun getAllQuizzes(): List<Quiz>{
-        return allQuizzes
-    }
-
-    override fun unbookmarkQuiz(quiz: Quiz) {
-        val updatedQuiz = quiz.copy(bookmarked = false)
-        allQuizzes[allQuizzes.indexOf(quiz)] = updatedQuiz
-    }
-    override fun getQuizById(id: Int): Quiz {
-        return allQuizzes.first { it.id == id }
-    }
-    override fun createQuiz(name: String): Int {
-        val specificID = uniqueId()
-        allQuizzes.add(Quiz(specificID, name, emptyList()))
-        return specificID
-    }
-    override fun deleteQuiz(id: Int) {
-        allQuizzes.removeIf { it.id == id }
-    }
-    override fun removeQuestionFromQuiz(quizId: Int, questionId: Int) {
-        val quiz = allQuizzes.find { it.id == quizId }
-        if (quiz != null) {
-            val updatedQuestions = quiz.questions.filterNot { it.id == questionId }
-            allQuizzes[allQuizzes.indexOf(quiz)] = quiz.copy(questions = updatedQuestions)
+    override suspend fun getAllQuizzes(): List<Quiz> {
+        return quizDao.getAllQuizzes().map { quizEntity ->
+            Quiz(
+                id = quizEntity.id,
+                name = quizEntity.name,
+                questions = quizDao.getQuestionsByQuizId(quizEntity.id).map { questionEntity ->
+                    mapQuestionEntityToQuestion(questionEntity)
+                }
+            )
         }
     }
 
-    override fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String): Int {
-        val questionId = uniqueQuestionId(quizId)
-        val question = QuestionMultipleChoice(choicesTrue, choicesFalse, questionId, text)
-        val quiz = allQuizzes.find { it.id == quizId }
-        if (quiz != null) {
-            val updatedQuestions = quiz.questions + question
-            allQuizzes[allQuizzes.indexOf(quiz)] = quiz.copy(questions = updatedQuestions)
+    override suspend fun getQuizById(id: Int): Quiz {
+        val quizEntity = quizDao.getQuizById(id)
+        val questions = quizDao.getQuestionsByQuizId(id).map { questionEntity ->
+            mapQuestionEntityToQuestion(questionEntity)
         }
+        if (quizEntity != null) {
+            return Quiz(
+                id = quizEntity.id,
+                name = quizEntity.name,
+                questions = questions
+            )
+        }
+        return Quiz(id = -1, name = "Error", questions = emptyList())
+    }
+
+    override suspend fun createQuiz(name: String): Int {
+        val quizEntity = QuizEntity(name = name)
+        return quizDao.insertQuiz(quizEntity).toInt()
+    }
+
+    override suspend fun deleteQuiz(id: Int) {
+        quizDao.deleteQuizById(id)
+    }
+
+    override suspend fun removeQuestionFromQuiz(quizId: Int, questionId: Int) {
+        quizDao.removeQuestionFromQuiz(quizId, questionId)
+    }
+
+    override suspend fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String): Int {
+        // Create the base question entity
+        val questionEntity = QuestionEntity(
+            id = -1,
+            text = text,
+            quizId = quizId,
+            questionType = "multiple_choice",
+            choicesTrue = choicesTrue,
+            choicesFalse = choicesFalse
+        )
+
+        // Insert the question and get its ID
+        val questionId = quizDao.insertQuestion(questionEntity).toInt()
+
+        // Link the question to the quiz
+        linkQuestionToQuiz(quizId, questionId)
+
         return questionId
     }
 
-    override fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String): Int {
-        val questionId = uniqueQuestionId(quizId)
-        val question = QuestionTrueFalse(answer, questionId, text)
-        val quiz = allQuizzes.find { it.id == quizId }
-        if (quiz != null) {
-            val updatedQuestions = quiz.questions + question
-            allQuizzes[allQuizzes.indexOf(quiz)] = quiz.copy(questions = updatedQuestions)
-        }
+    override suspend fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String): Int {
+        // Create the base question entity
+        val questionEntity = QuestionEntity(
+            text = text,
+            quizId = quizId,
+            questionType = "true_false",
+            answer = answer,
+            id = -1
+        )
+
+        // Insert the question and get its ID
+        val questionId = quizDao.insertQuestion(questionEntity).toInt()
+
+        // Link the question to the quiz
+        linkQuestionToQuiz(quizId, questionId)
+
         return questionId
     }
-    override fun getQuestionsByQuizId(quizId: Int): List<Question> {
-        return allQuizzes.first { it.id == quizId }.questions
-    }
-    private fun uniqueId(): Int {
-        var id = 1
-        while (!allQuizzes.none { it.id == id}) {
-            id++
+
+    override suspend fun getQuestionsByQuizId(quizId: Int): List<Question> {
+        return quizDao.getQuestionsByQuizId(quizId).map { questionEntity ->
+            mapQuestionEntityToQuestion(questionEntity)
         }
-        return id
     }
-    private fun uniqueQuestionId(quizId: Int): Int{
-        var id = 1
-        val quiz = allQuizzes.find { it.id == quizId }
-        if (quiz != null) {
-            while (!quiz.questions.none { it.id == id}) {
-                id++
+
+    override suspend fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int): Question? {
+        val questionEntity = quizDao.getQuestionByQuizAndQuestionId(quizId, questionId)
+        return questionEntity?.let { mapQuestionEntityToQuestion(it) }
+    }
+
+    override suspend fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean {
+        quizDao.updateQuestionText(questionId, newText)
+        return true
+    }
+
+    private fun mapQuestionEntityToQuestion(questionEntity: QuestionEntity): Question {
+        return when (questionEntity.questionType) {
+            "multiple_choice" -> {
+                QuestionMultipleChoice(
+                    id = questionEntity.id,
+                    text = questionEntity.text,
+                    choicesTrue = questionEntity.choicesTrue ?: emptyList(),
+                    choicesFalse = questionEntity.choicesFalse ?: emptyList(),
+                    quizId = questionEntity.quizId
+                )
+            }
+            "true_false" -> {
+                QuestionTrueFalse(
+                    id = questionEntity.id,
+                    text = questionEntity.text,
+                    answer = questionEntity.answer ?: false, // Default to false if answer is null
+                    quizId = questionEntity.quizId
+                )
+            }
+            else -> {
+                // Default case: handle as regular Question
+                Question(
+                    id = questionEntity.id,
+                    text = questionEntity.text,
+
+                )
             }
         }
-        return id
-    }
-    override fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int): Question? {
-        val quiz = allQuizzes.find { it.id == quizId }
-        return quiz?.questions?.find { it.id == questionId }
     }
 
-    override fun getBookmarkedQuizzes(): List<Quiz> {
-        return allQuizzes.filter { it.bookmarked }
-    }
-    override fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean {
-        val quiz = allQuizzes.find { it.id == quizId }
-        val questionIndex = quiz?.questions?.indexOfFirst { it.id == questionId }
-        if (quiz != null && questionIndex != null && questionIndex != -1) {
-            val updatedQuestions = quiz.questions.toMutableList()
-            updatedQuestions[questionIndex] = when (val question = updatedQuestions[questionIndex]) {
-                is QuestionMultipleChoice -> question.copy(text = newText)
-                is QuestionTrueFalse -> question.copy(text = newText)
-                else -> return false // Unsupported question type
+    private suspend fun linkQuestionToQuiz(quizId: Int, questionId: Int) {
+        try {
+            // Check if the quizId exists
+            val quizExists = quizDao.getQuizById(quizId) != null
+            if (!quizExists) {
+                throw IllegalArgumentException("Quiz with id $quizId does not exist.")
             }
-            allQuizzes[allQuizzes.indexOf(quiz)] = quiz.copy(questions = updatedQuestions)
-            return true
+
+            // Check if the questionId exists
+            val questionExists = quizDao.getQuestionById(questionId) != null
+            if (!questionExists) {
+                Log.d("TAG", "Question with id $questionId does not exist.")
+                return
+            }
+
+            // All IDs exist, proceed to link them
+            val crossRef = QuizQuestionCrossRef(quizId = quizId, questionId = questionId)
+            quizDao.insertQuizQuestionCrossRef(crossRef)
+
+            // Log successful linking
+            Log.d("TAG", "Linked quiz with id $quizId to question with id $questionId")
+        } catch (e: IllegalArgumentException) {
+            // Log the exception and rethrow it for higher-level handling
+            Log.e("TAG", "Error linking question to quiz: ${e.message}")
+            throw e
+        } catch (e: Exception) {
+            // Log any unexpected exceptions
+            Log.e("TAG", "Unexpected error linking question to quiz: ${e.message}")
+            throw e
         }
-        return false
-    }
-
-    // DUMMY DATA
-
-
-    init {
-        // Initialize with dummy data
-        val quiz1Id = createQuiz("Quiz 1")
-        createMultipleChoiceQuestion(
-            quiz1Id,
-            listOf("4"),
-            listOf("2", "0", "1"),
-            "What is 2 + 2?"
-        )
-        createMultipleChoiceQuestion(
-            quiz1Id,
-            listOf("True", "True"),
-            listOf("False", "False"),
-            "What color is the sky?"
-        )
-        createTrueFalseQuestion(
-            quiz1Id,
-            true,
-            "Is the Earth round?"
-        )
-        createTrueFalseQuestion(
-            quiz1Id,
-            true,
-            "TRUE is correct"
-        )
-        createTrueFalseQuestion(
-            quiz1Id,
-            false,
-            "FALSE is correct"
-        )
-
-
-        val quiz2Id = createQuiz("Quiz 2")
-        createMultipleChoiceQuestion(
-            quiz2Id,
-            listOf("Paris"),
-            listOf("Bern", "Vienna"),
-            "What is the capital of France?"
-        )
-        createTrueFalseQuestion(
-            quiz2Id,
-            false,
-            "Is Earth flat?"
-        )
-
-        val quiz3Id = createQuiz("Quiz 3")
-        createMultipleChoiceQuestion(
-            quiz3Id,
-            listOf("The Danish krone"),
-            listOf("Yen", "Euro"),
-            "What is the currency of Denmark? ?"
-        )
-
-        val quiz4Id = createQuiz("Quiz 4")
-        createMultipleChoiceQuestion(
-            quiz4Id,
-            listOf("True", "True"),
-            listOf("False", "False"),
-            "Trues are Correct"
-        )
     }
 }
+
+
+
+
+
+
