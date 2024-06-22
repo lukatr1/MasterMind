@@ -17,6 +17,8 @@ interface QuizRepo {
     fun getQuestionsByQuizId(quizId: Int): List<Question>
     fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int) : Question?
     fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean
+    fun getBookmarkedQuizzes(): List<Quiz>
+    fun unbookmarkQuiz(quiz: Quiz)
 }
 
 
@@ -31,11 +33,15 @@ class GetQuizRepoProvider {
 
 object QuizRepoImpl : QuizRepo {
 
-
     private val allQuizzes = mutableListOf<Quiz>()
 
     override fun getAllQuizzes(): List<Quiz>{
         return allQuizzes
+    }
+
+    override fun unbookmarkQuiz(quiz: Quiz) {
+        val updatedQuiz = quiz.copy(bookmarked = false)
+        allQuizzes[allQuizzes.indexOf(quiz)] = updatedQuiz
     }
     override fun getQuizById(id: Int): Quiz {
         return allQuizzes.first { it.id == id }
@@ -100,6 +106,10 @@ object QuizRepoImpl : QuizRepo {
     override fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int): Question? {
         val quiz = allQuizzes.find { it.id == quizId }
         return quiz?.questions?.find { it.id == questionId }
+    }
+
+    override fun getBookmarkedQuizzes(): List<Quiz> {
+        return allQuizzes.filter { it.bookmarked }
     }
     override fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean {
         val quiz = allQuizzes.find { it.id == quizId }

@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -42,33 +44,107 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import com.example.mastermind.data.GetQuizRepoProvider
 import com.example.mastermind.data.models.Quiz
 import com.example.mastermind.data.models.log
+import com.example.mastermind.viewModel.BookmarkedScreenViewModel
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
 class BookmarkedScreen : Screen {
+
     @Composable
     override fun Content() {
-        val navigator = LocalNavigator.current
+        val navigation = LocalNavigator.current
+        val viewModel: BookmarkedScreenViewModel = viewModel()
+        val bookmarkedQuizzes by viewModel.bookmarkedQuizzes.observeAsState(initial = emptyList())
+        val searchText = remember { mutableStateOf("") }
+
+        LaunchedEffect(Unit) {
+            viewModel.getBookmarkedQuizzes()
+        }
+
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            TextField(
+                value = searchText.value,
+                onValueChange = { searchText.value = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                placeholder = { Text("Search bookmarked quizzes by name...") }
+            )
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f), // Occupy remaining space
-                contentAlignment = Alignment.Center
+                    .weight(1f)
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.TopCenter
             ) {
-
+                if (bookmarkedQuizzes.isEmpty()) {
+                    Text(text = "No bookmarked quizzes available.")
+                } else {
+                    LazyColumn(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        val filteredQuizzes = bookmarkedQuizzes.filter {
+                            it.name.contains(searchText.value, ignoreCase = true)
+                        }
+                        items(filteredQuizzes) { quiz ->
+                            QuizItem(
+                                quiz = quiz,
+                                onClick = { navigation?.push(TakeQuizScreen(quiz.id)) },
+                                onUnbookmark = {
+                                    viewModel.unbookmarkQuiz(quiz)
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                        }
+                    }
+                }
             }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Button(onClick = { navigator?.pop() }) {
+                Button(onClick = { navigation?.pop() }) {
                     Text(text = "Go back to HomeScreen")
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun QuizItem(quiz: Quiz, onClick: () -> Unit, onUnbookmark: () -> Unit) {
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .clickable(onClick = onClick),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = quiz.name,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.Black,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = onUnbookmark) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "Unbookmark Quiz",
+                        tint = Color.Red
+                    )
                 }
             }
         }

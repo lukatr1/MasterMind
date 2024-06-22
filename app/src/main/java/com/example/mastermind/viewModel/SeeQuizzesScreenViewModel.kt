@@ -44,6 +44,10 @@ class SeeQuizzesScreenViewModel : ViewModel() {
         updateQuizzes()
     }
 
+    fun getBookmarkedQuizzes(): List<Quiz> {
+        return quizRepo.getBookmarkedQuizzes()
+    }
+
     fun createMultipleChoiceQuestion(
         quizId: Int,
         choicesTrue: List<String>,

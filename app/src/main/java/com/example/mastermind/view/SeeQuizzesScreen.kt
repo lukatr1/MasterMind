@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -55,6 +57,7 @@ class SeeQuizzesScreen : Screen {
         var showEditDialog by remember { mutableStateOf(false) }
         var quizToEdit by remember { mutableStateOf<Quiz?>(null) }
         var editQuizName by remember { mutableStateOf("") }
+        var bookmarkedQuizzes by remember { mutableStateOf(emptyList<Quiz>()) }
 
         // Fetch quizzes when the screen is first created
         LaunchedEffect(Unit) {
@@ -104,6 +107,17 @@ class SeeQuizzesScreen : Screen {
                                     quizToEdit = quiz
                                     editQuizName = quiz.name
                                     showEditDialog = true
+                                },
+                                onBookmark = {
+                                    quiz.bookmarked = !quiz.bookmarked
+                                    if (quiz.bookmarked) {
+                                        bookmarkedQuizzes += quiz
+                                    } else {
+                                        bookmarkedQuizzes = bookmarkedQuizzes.filterNot {
+                                            it.id == quiz.id
+                                            //bookmarkedQuizzes -= quiz
+                                        }
+                                    }
                                 }
                             )
                             Spacer(modifier = Modifier.height(14.dp))
@@ -178,7 +192,13 @@ class SeeQuizzesScreen : Screen {
     }
 
     @Composable
-    private fun QuizItem(quiz: Quiz, onClick: () -> Unit, onDelete: () -> Unit, onEdit: () -> Unit) {
+    private fun QuizItem(
+        quiz: Quiz,
+        onClick: () -> Unit,
+        onDelete: () -> Unit,
+        onEdit: () -> Unit,
+        onBookmark: () -> Unit
+    ) {
         Card(
             modifier = Modifier
                 .padding(8.dp)
@@ -213,6 +233,14 @@ class SeeQuizzesScreen : Screen {
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete Quiz",
                         tint = Color.Red
+                    )
+                }
+                IconButton(onClick = onBookmark) {
+                    val bookmarkIcon = if (quiz.bookmarked) Icons.Default.Favorite else Icons.Default.FavoriteBorder
+                    Icon(
+                        imageVector = bookmarkIcon,
+                        contentDescription = "Bookmark Quiz",
+                        tint = if (quiz.bookmarked) Color.Red else Color.Gray
                     )
                 }
             }
