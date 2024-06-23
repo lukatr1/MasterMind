@@ -12,7 +12,8 @@ interface QuizRepo {
     suspend fun getQuizById(id: Int): Quiz
     suspend fun createQuiz(name: String):Int
     suspend fun deleteQuiz(id: Int)
-    suspend fun removeQuestionFromQuiz(quizId: Int, questionId: Int)
+    suspend fun removeQuestionFromQuiz(quizId: Int)
+    //suspend fun removeQuestionFromQuiz(questionId: Int)
     suspend fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String):Int
     suspend fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String):Int
     suspend fun getQuestionsByQuizId(quizId: Int): List<Question>
@@ -93,11 +94,18 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
 
     override suspend fun deleteQuiz(id: Int) {
         quizDao.deleteQuizById(id)
+        //quizDao.removeQuestionFromQuiz(id)
     }
 
-    override suspend fun removeQuestionFromQuiz(quizId: Int, questionId: Int) {
+    /*override suspend fun removeQuestionFromQuiz(quizId: Int, questionId: Int) {
         quizDao.removeQuestionFromQuiz(quizId, questionId)
+    }*/
+
+    override suspend fun removeQuestionFromQuiz(quizId: Int) {
+        quizDao.removeQuestionFromQuiz(quizId)
     }
+
+
 
     override suspend fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String): Int {
         // Create the base question entity

@@ -39,6 +39,10 @@ class SeeQuizzesScreenViewModel(context: Context) : ViewModel() {
     fun deleteQuiz(id: Int) {
         viewModelScope.launch {
             quizRepo.deleteQuiz(id)
+            quizRepo.getQuestionsByQuizId(id).forEach { question ->
+                //quizRepo.removeQuestionFromQuiz(id, question.id)
+                quizRepo.removeQuestionFromQuiz(id)
+            }
             updateQuizzes()
         }
     }
@@ -53,6 +57,14 @@ class SeeQuizzesScreenViewModel(context: Context) : ViewModel() {
             updateQuizzes()
         }
     }
+
+    fun removeQuestionFromQuiz(quizId: Int) {
+        viewModelScope.launch {
+            quizRepo.removeQuestionFromQuiz(quizId)
+            updateQuizzes()
+        }
+    }
+
 
     fun getBookmarkedQuizzes(): List<Quiz> {
         return quizRepo.getBookmarkedQuizzes()

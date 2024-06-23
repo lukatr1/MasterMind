@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -44,7 +45,7 @@ import com.example.mastermind.data.models.QuestionTrueFalse
 import com.example.mastermind.viewModel.TakeQuizScreenViewModel
 
 data class TakeQuizScreen(val quizId: Int, private var context: Context) : Screen {
-    private fun getContext () : Context {
+    private fun getContext(): Context {
         return context
     }
 
@@ -79,24 +80,19 @@ data class TakeQuizScreen(val quizId: Int, private var context: Context) : Scree
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                LazyColumn {
-                    items(q.questions) { question ->
-                        QuestionItem(
-                            question = question,
-                            onAnswered = { isCorrect ->
-                                if (isCorrect) {
-                                    correctAnswers++
-                                }
-                                answeredQuestions++
-                                // Check if all questions are answered
-                                if (answeredQuestions == q.questions.size) {
-                                    showQuizCompletedPopup = true
-                                }
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
+                QuestionList(
+                    questions = q.questions,
+                    onAnswered = { isCorrect ->
+                        if (isCorrect) {
+                            correctAnswers++
+                        }
+                        answeredQuestions++
+                        // Check if all questions are answered
+                        if (answeredQuestions == q.questions.size) {
+                            showQuizCompletedPopup = true
+                        }
                     }
-                }
+                )
             }
         }
 
@@ -126,15 +122,26 @@ data class TakeQuizScreen(val quizId: Int, private var context: Context) : Scree
             )
         }
     }
+}
+
 
     @Composable
-    fun QuestionItem(question: Question, onAnswered: (Boolean) -> Unit) {
+    fun QuestionItem(
+        question: Question,
+        onAnswered: (Boolean) -> Unit,
+        questionNumber: Int // Added parameter for question number
+    ) {
         var isAnswered by remember { mutableStateOf(false) }
         var isCorrect by remember { mutableStateOf(false) }
 
+        // Function to format the question number
+        fun formatQuestionNumber(number: Int): String {
+            return number.toString()
+        }
+
         Column {
             Text(
-                text = question.id.toString() + ". " + question.text,
+                text = formatQuestionNumber(questionNumber) + ". " + question.text, // Use custom function for number
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -202,7 +209,6 @@ data class TakeQuizScreen(val quizId: Int, private var context: Context) : Scree
             }
         }
     }
-}
 
 @Composable
 fun AnswerCard(choice: String, isCorrect: Boolean, onClick: () -> Unit, showResult: Boolean) {
@@ -240,6 +246,20 @@ fun AnswerCard(choice: String, isCorrect: Boolean, onClick: () -> Unit, showResu
 
                 )
             }
+        }
+    }
+}
+
+
+@Composable
+fun QuestionList(questions: List<Question>, onAnswered: (Boolean) -> Unit) {
+    LazyColumn {
+        itemsIndexed(questions) { index, question ->
+            QuestionItem(
+                question = question,
+                onAnswered = onAnswered,
+                questionNumber = index + 1 // Pass the index plus one
+            )
         }
     }
 }

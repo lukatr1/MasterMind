@@ -148,7 +148,8 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                 text = { Text("Are you sure you want to delete this quiz?") },
                 confirmButton = {
                     Button(onClick = {
-                        quizToDelete?.let { viewModel.deleteQuiz(it.id) }
+                        quizToDelete?.let { viewModel.deleteQuiz(it.id)
+                        viewModel.removeQuestionFromQuiz(it.id)}
                         showDeleteDialog = false
                         viewModel.updateQuizzes()
                     }) {

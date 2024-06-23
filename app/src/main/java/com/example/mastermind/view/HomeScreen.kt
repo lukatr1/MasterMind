@@ -65,7 +65,7 @@ class HomeScreen(private var context: Context) : Screen {
                     navigator?.push(BookmarkedScreen(getContext()))
                 })
                 PoleButton(text = "About", color = Color.hsl(82F, 1F, 0.5F), onClick = {
-                    navigator?.push(AboutAppScreen(getContext()))
+                navigator?.push(AboutAppScreen(getContext()))
                 })
             }
         }
