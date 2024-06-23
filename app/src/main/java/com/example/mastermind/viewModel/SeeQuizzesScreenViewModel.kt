@@ -65,8 +65,7 @@ class SeeQuizzesScreenViewModel(context: Context) : ViewModel() {
         }
     }
 
-
-    fun getBookmarkedQuizzes(): List<Quiz> {
+    suspend fun getBookmarkedQuizzes(): List<Quiz> {
         return quizRepo.getBookmarkedQuizzes()
     }
 }

@@ -34,12 +34,6 @@ interface QuizDao {
     @Query("SELECT * FROM questions WHERE id = :questionId AND id IN (SELECT questionId FROM quiz_questions WHERE quizId = :quizId)")
     suspend fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int): QuestionEntity?
 
-//    @Query("DELETE FROM quiz_questions WHERE quizId = :quizId AND questionId = :questionId")
-  //  suspend fun removeQuestionFromQuiz(quizId: Int, questionId: Int)
-
-    //@Query("DELETE FROM questions JOIN quiz_questions ON questions.quiz_id = quiz_questions.quizID INNER JOIN quizzes ON quiz_questions.quizID = quizzes.id WHERE quizzes.id = :quizId AND questions.quiz_id = :quizID")
-    //suspend fun removeQuestionFromQuiz(quizId: Int, questionId: Int)
-
     @Query("DELETE FROM questions WHERE quiz_id = :quizId")
     suspend fun removeQuestionFromQuiz(quizId: Int)
 
@@ -49,5 +43,11 @@ interface QuizDao {
 
     @Insert
     suspend fun insertQuizQuestionCrossRef(crossRef: QuizQuestionCrossRef)
+
+    @Query("SELECT * FROM quizzes")
+    suspend fun getBookmarkedQuizzes(): List<QuizEntity>
+
+    /*@Query()
+    suspend fun addQuizToBookmarks(quiz: QuizEntity)*/
 }
 

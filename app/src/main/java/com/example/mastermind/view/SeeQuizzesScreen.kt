@@ -241,7 +241,7 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                     )
                 }
                 IconButton(onClick = onBookmark) {
-                    val bookmarkIcon = if (quiz.bookmarked) Icons.Default.Favorite else Icons.Default.FavoriteBorder
+                    val bookmarkIcon = if (quiz.bookmarked) Icons.Default.FavoriteBorder else Icons.Default.Favorite
                     Icon(
                         imageVector = bookmarkIcon,
                         contentDescription = "Bookmark Quiz",

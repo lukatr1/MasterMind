@@ -20,7 +20,7 @@ interface QuizRepo {
     suspend fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int) : Question?
     suspend fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean
     suspend fun unbookmarkQuiz(quiz: Quiz)
-    fun getBookmarkedQuizzes(): List<Quiz>
+    suspend fun getBookmarkedQuizzes(): List<Quiz>
 }
 
 class GetQuizRepoProvider {
@@ -63,9 +63,21 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
         }
     }
 
-    override fun getBookmarkedQuizzes(): List<Quiz> {
+    override suspend fun getBookmarkedQuizzes(): List<Quiz> {
         return allQuizzes.filter { it.bookmarked }
     }
+
+    /*override suspend fun getBookmarkedQuizzes(): List<Quiz> {
+        return quizDao.getBookmarkedQuizzes().map { quizEntity ->
+            Quiz(
+                id = quizEntity.id,
+                name = quizEntity.name,
+                questions = quizDao.getQuestionsByQuizId(quizEntity.id).map { questionEntity ->
+                    mapQuestionEntityToQuestion(questionEntity)
+                }
+            )
+        }
+    }*/
 
     override suspend fun getQuizById(id: Int): Quiz {
         val quizEntity = quizDao.getQuizById(id)
@@ -87,9 +99,18 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
         return quizDao.insertQuiz(quizEntity).toInt()
     }
 
-    override suspend fun unbookmarkQuiz(quiz: Quiz) {
+    /*override suspend fun unbookmarkQuiz(quiz: Quiz) {
         val updatedQuiz = quiz.copy(bookmarked = false)
         allQuizzes[allQuizzes.indexOf(quiz)] = updatedQuiz
+    }*/
+
+    override suspend fun unbookmarkQuiz(quiz: Quiz) {
+        val quizEntity = QuizEntity(
+            id = quiz.id,
+            name = quiz.name,
+            //bookmarked = false
+        )
+        quizDao.insertQuiz(quizEntity)
     }
 
     override suspend fun deleteQuiz(id: Int) {
