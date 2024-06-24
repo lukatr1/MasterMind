@@ -28,10 +28,10 @@ interface QuizDao {
     @Delete
     suspend fun deleteQuestion(question: QuestionEntity)
 
-    @Query("SELECT * FROM questions WHERE id IN (SELECT questionId FROM quiz_questions WHERE quizId = :quizId)")
+    @Query("SELECT * FROM questions WHERE quiz_Id = :quizId")
     suspend fun getQuestionsByQuizId(quizId: Int): List<QuestionEntity>
 
-    @Query("SELECT * FROM questions WHERE id = :questionId AND id IN (SELECT questionId FROM quiz_questions WHERE quizId = :quizId)")
+    @Query("SELECT * FROM questions WHERE id = :questionId AND  quiz_Id = :quizId")
     suspend fun getQuestionByQuizAndQuestionId(quizId: Int, questionId: Int): QuestionEntity?
 
     @Query("DELETE FROM questions WHERE quiz_id = :quizId")
