@@ -47,6 +47,8 @@ import com.example.mastermind.data.models.Quiz
 import com.example.mastermind.data.models.log
 import com.example.mastermind.utils.SharedPreferencesHelper
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
+import android.widget.Toast
+
 
 class SeeQuizzesScreen(private var context: Context) : Screen {
     private fun getContext(): Context {
@@ -127,7 +129,13 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                         items(filteredQuizzes) { quiz ->
                             QuizItem(
                                 quiz = quiz,
-                                onClick = { navigation?.push(TakeQuizScreen(quiz.id, getContext())) },
+                                onClick = {
+                                    if (quiz.questions.isEmpty()) {
+                                        Toast.makeText(getContext(), "This quiz has no questions", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        navigation?.push(TakeQuizScreen(quiz.id, getContext()))
+                                    }
+                                },
                                 onDelete = {
                                     quizToDelete = quiz
                                     showDeleteDialog = true

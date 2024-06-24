@@ -1,5 +1,6 @@
 package com.example.mastermind.viewModel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +21,7 @@ class CreateQuizScreenViewModel(private val context: Context) : ViewModel() {
     val quizzes: LiveData<List<Quiz>>
         get() = _quizzes
 
+    @SuppressLint("SuspiciousIndentation")
     suspend fun createQuiz(name: String): Int {
         var author = "Guest"
             if (SharedPreferencesHelper.isLoggedIn(context)) {

@@ -139,12 +139,21 @@ class BookmarkedScreen(private var context: Context) : Screen {
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = quiz.name,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.Black,
-                    modifier = Modifier.weight(1f)
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = quiz.name,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = Color.Black,
+
+                        )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Created by: ${quiz.createdBy}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black,
+                    )
+
+
+                }
                 IconButton(onClick = onUnbookmark) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
