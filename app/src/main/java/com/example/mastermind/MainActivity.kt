@@ -6,12 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.transitions.SlideTransition
 import com.example.mastermind.ui.theme.MasterMindTheme
+import com.example.mastermind.utils.SharedPreferencesHelper
+import com.example.mastermind.view.HomeScreen
 import com.example.mastermind.view.StartingScreen
-import java.lang.Appendable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,13 +24,16 @@ class MainActivity : ComponentActivity() {
 }
 
 
+
 @Composable
 fun App(context: Context) {
     MasterMindTheme {
         Surface {
-            Navigator(StartingScreen(context))
+            if(SharedPreferencesHelper.isLoggedIn(context)){
+            Navigator(HomeScreen(context))}
+            else{
+
+                Navigator(StartingScreen(context))}
         }
-        //specified start destination
     }
 }
-
