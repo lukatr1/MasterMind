@@ -1,5 +1,6 @@
 package com.example.mastermind.view
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
@@ -11,7 +12,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 
 
-class StartingScreen : Screen {
+class StartingScreen(private var context: Context) : Screen {
+    private fun getContext () : Context {
+        return context
+    }
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
@@ -19,7 +23,7 @@ class StartingScreen : Screen {
             .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Button(onClick = {navigator?.push(HomeScreen()) }) {
+            Button(onClick = {navigator?.push(HomeScreen(getContext())) }) {
                 Text(text = "This is the StartingScreen")
             }
         }

@@ -1,5 +1,6 @@
 package com.example.mastermind.view
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,12 +25,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
-class HomeScreen() : Screen {
+class HomeScreen(private var context: Context) : Screen {
+    private fun getContext () : Context {
+        return context
+    }
     @Composable
     override fun Content() {
+        val seeQuizzesViewModel = SeeQuizzesScreenViewModel(getContext())
         val navigator = LocalNavigator.current
         Column(
             modifier = Modifier
@@ -42,10 +49,11 @@ class HomeScreen() : Screen {
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 PoleButton(text = "See Quizzes", color = Color.hsl(42f, 1f, 0.5f), onClick = {
-                    navigator?.push(SeeQuizzesScreen())
+                    seeQuizzesViewModel.updateQuizzes()
+                    navigator?.push(SeeQuizzesScreen(getContext()))
                 })
                 PoleButton(text = "Create Quiz", color =Color.hsl(13F, 1F, 0.5F) , onClick = {
-                    navigator?.push(CreateQuizScreen())
+                    navigator?.push(CreateQuizScreen(getContext()))
                 })
             }
             Spacer(modifier = Modifier.height(15.dp))
@@ -53,10 +61,11 @@ class HomeScreen() : Screen {
                 modifier = Modifier,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                PoleButton(text = "PlaceHolder", color = Color.hsl(165F, 1F, 0.5F), onClick = {
+                PoleButton(text = "Bookmarked", color = Color.hsl(165F, 1F, 0.5F), onClick = {
+                    navigator?.push(BookmarkedScreen(getContext()))
                 })
                 PoleButton(text = "About", color = Color.hsl(82F, 1F, 0.5F), onClick = {
-                    navigator?.push(AboutAppScreen())
+                navigator?.push(AboutAppScreen(getContext()))
                 })
             }
         }
@@ -80,9 +89,9 @@ fun PoleButton(text: String, color: Color, onClick: () -> Unit) {
         ) {
             Text(
                 text = text,
-                color = Color.DarkGray, // Set text color to black
-                fontSize = 18.sp, // Set text size to 18 sp
-                fontWeight = FontWeight.Bold // Optional: make text bold
+                color = Color.DarkGray,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }

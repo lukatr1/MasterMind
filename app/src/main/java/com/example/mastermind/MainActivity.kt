@@ -1,5 +1,6 @@
 package com.example.mastermind
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,18 +18,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MasterMindTheme {
-                    App()
+                App(context = this)
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+
 @Composable
-fun App() {
+fun App(context: Context) {
     MasterMindTheme {
         Surface {
-            Navigator(StartingScreen())
+            Navigator(StartingScreen(context))
         }
         //specified start destination
     }
