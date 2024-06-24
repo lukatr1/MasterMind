@@ -33,6 +33,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import com.example.mastermind.utils.SharedPreferencesHelper
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material3.Icon
 
 
 class HomeScreen(private var context: Context) : Screen {
@@ -82,15 +86,39 @@ class HomeScreen(private var context: Context) : Screen {
                 .height(8.dp)
             )
 
-            FloatingActionButton(onClick = {
-                SharedPreferencesHelper.clearUsername(getContext())
-                navigator?.popAll()
-                navigator?.replace(StartingScreen(getContext()))
-            }) {
-                Text("Logout")
-            }
-            }
+            FloatingActionButton(
+                onClick = {
+                    SharedPreferencesHelper.clearUsername(getContext())
+                    navigator?.popAll()
+                    navigator?.replace(StartingScreen(getContext()))
+                }
+            ) {
+                if (SharedPreferencesHelper.isLoggedIn(getContext())) {
+                    Text("Logout")
+                } else {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            //imageVector = Icons.Filled.AccountCircle,
+                            imageVector = Icons.Outlined.AccountCircle,
+                            contentDescription = "Login",
+                            modifier = Modifier
+                                .size(48.dp),
+                            tint = Color.White
+                        )
 
+                    }
+                    Text(
+                        text = "Login",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .padding(top = 70.dp)
+                            .background(Color.Transparent)
+                    )
+                }
+            }
+            }
     }
 }
 

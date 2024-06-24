@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -14,6 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import com.example.mastermind.utils.SharedPreferencesHelper
@@ -21,6 +24,7 @@ import com.example.mastermind.view.HomeScreen
 
 class StartingScreen(private val context: Context) : Screen {
 
+    @OptIn(InternalVoyagerApi::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
@@ -44,12 +48,21 @@ class StartingScreen(private val context: Context) : Screen {
                     onClick = {
                         if (username.isNotBlank()) {
                             SharedPreferencesHelper.saveUsername(context, username)
-                            navigator?.push(HomeScreen(context))
+                            navigator?.replace(HomeScreen(context))
                         }
                     },
-                    enabled = username.isNotBlank()
+                    enabled = username.isNotBlank(),
+                    modifier = Modifier.padding(top = 16.dp)  // Adding padding for spacing
                 ) {
                     Text(text = "Login")
+                }
+
+                Button(
+                    onClick = {
+                        navigator?.replace(HomeScreen(context)) },
+                    modifier = Modifier.padding(top = 16.dp)  // Adding padding for spacing
+                ) {
+                    Text(text = "Guest Mode")
                 }
             }
         }
