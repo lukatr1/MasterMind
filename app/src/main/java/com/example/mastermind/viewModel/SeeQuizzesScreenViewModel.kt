@@ -53,7 +53,7 @@ class SeeQuizzesScreenViewModel(context: Context) : ViewModel() {
             val updatedQuiz = quiz.copy(name = newName)
             // Remove the old quiz and add the updated one
             deleteQuiz(id)
-            quizRepo.createQuiz(updatedQuiz.name)
+            quizRepo.createQuiz(updatedQuiz.name, author = updatedQuiz.createdBy)
             updateQuizzes()
         }
     }

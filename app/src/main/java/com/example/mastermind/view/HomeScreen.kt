@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -72,7 +74,7 @@ class HomeScreen(private var context: Context) : Screen {
                 modifier = Modifier,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                PoleButton(text = "Bookmarked", color = Color.hsl(165F, 1F, 0.5F), onClick = {
+                PoleButton(text = "Favorites", color = Color.hsl(165F, 1F, 0.5F), onClick = {
                     navigator?.push(BookmarkedScreen(getContext()))
                 })
                 PoleButton(text = "About", color = Color.hsl(82F, 1F, 0.5F), onClick = {
@@ -86,7 +88,12 @@ class HomeScreen(private var context: Context) : Screen {
                 .height(8.dp)
             )
 
-            FloatingActionButton(
+
+
+            Button(
+                //containerColor = Color.Transparent,
+                //shape = RoundedCornerShape(100),
+                shape = RoundedCornerShape(100),
                 onClick = {
                     SharedPreferencesHelper.clearUsername(getContext())
                     navigator?.popAll()
@@ -105,18 +112,22 @@ class HomeScreen(private var context: Context) : Screen {
                             contentDescription = "Login",
                             modifier = Modifier
                                 .size(48.dp),
-                            tint = Color.White
+                            tint = Color.DarkGray
+                        )
+                        Text(
+                            text = "Login",
+                            style = MaterialTheme.typography.bodyLarge,
+
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .background(Color.Transparent)
                         )
 
                     }
-                    Text(
-                        text = "Login",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .padding(top = 70.dp)
-                            .background(Color.Transparent)
-                    )
+
+
                 }
+
             }
         }
     }

@@ -71,7 +71,7 @@ class AboutAppScreen(private var context: Context) : Screen {
                 onClick = { navigator?.pop() },
                 modifier = Modifier.padding(top = 16.dp)
             ) {
-                Text(text = "Zurück zur Startseite")
+                Text(text = "Go back to HomeScreen")
             }
         }
     }

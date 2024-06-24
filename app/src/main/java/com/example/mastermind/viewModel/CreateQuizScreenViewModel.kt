@@ -8,10 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.mastermind.data.GetQuizRepoProvider
 import com.example.mastermind.data.QuizRepo
 import com.example.mastermind.data.models.Quiz
+import com.example.mastermind.utils.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 
 
-class CreateQuizScreenViewModel(context: Context) : ViewModel() {
+class CreateQuizScreenViewModel(private val context: Context) : ViewModel() {
 
     private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(context)
 
@@ -20,31 +21,11 @@ class CreateQuizScreenViewModel(context: Context) : ViewModel() {
         get() = _quizzes
 
     suspend fun createQuiz(name: String): Int {
-        val id = quizRepo.createQuiz(name)
+        var author = "Guest"
+            if (SharedPreferencesHelper.isLoggedIn(context)) {
+            author = SharedPreferencesHelper.getUsername(context).toString()
+            }
+        val id = quizRepo.createQuiz(name = name, author = author)
         return id
     }
-
-    fun createMultipleChoiceQuestion(
-        quizId: Int,
-        choicesTrue: List<String>,
-        choicesFalse: List<String>,
-        text: String
-    ) {
-        viewModelScope.launch {
-            quizRepo.createMultipleChoiceQuestion(quizId, choicesTrue, choicesFalse, text)
-        }
-    }
-
-    fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String) {
-        viewModelScope.launch {
-            quizRepo.createTrueFalseQuestion(quizId, answer, text)
-        }
-    }
-
-    fun updateQuizzes() {
-        viewModelScope.launch {
-            _quizzes.postValue(quizRepo.getAllQuizzes())
-        }
-    }
-
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -44,6 +45,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import com.example.mastermind.data.models.Quiz
 import com.example.mastermind.data.models.log
+import com.example.mastermind.utils.SharedPreferencesHelper
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
 class SeeQuizzesScreen(private var context: Context) : Screen {
@@ -62,6 +64,8 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
         var showEditDialog by remember { mutableStateOf(false) }
         var quizToEdit by remember { mutableStateOf<Quiz?>(null) }
         var editQuizName by remember { mutableStateOf("") }
+        var myQuizzes by remember { mutableStateOf(false) }
+
 
 
         // Fetch quizzes when the screen is first created
@@ -83,6 +87,24 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                 placeholder = { Text("Search quizzes by name...") }
             )
 
+            Row {
+                Button(onClick = {
+                    myQuizzes = true
+                    navigation?.replace(SeeQuizzesScreen(getContext()))
+
+                }) {
+                    Text(text = "My Quizzes")
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Button(onClick = {
+                    myQuizzes = false
+                    navigation?.replace(SeeQuizzesScreen(getContext()))
+                }) {
+                    Text(text = "All Quizzes")
+
+                }
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,7 +120,9 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         val filteredQuizzes = quizzes.filter {
-                            it.name.contains(searchText.value, ignoreCase = true)
+                            it.name.contains(searchText.value, ignoreCase = true) && ( !myQuizzes || (!SharedPreferencesHelper.isLoggedIn(getContext() ) && it.createdBy == "Guest")
+                                    || (myQuizzes && it.createdBy == SharedPreferencesHelper.getUsername(getContext())))
+
                         }
                         items(filteredQuizzes) { quiz ->
                             QuizItem(
@@ -131,7 +155,17 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(top = 6.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(onClick = { navigation?.replace(BookmarkedScreen(getContext())) }) {
+                    Text(text = "Go to Favorites")
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Button(onClick = { navigation?.pop() }) {
@@ -217,12 +251,22 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = quiz.name,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.Black,
-                    modifier = Modifier.weight(1f)
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = quiz.name,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = Color.Black,
+
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Created by: ${quiz.createdBy}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black,
+                    )
+
+                    
+                }
+
                 IconButton(onClick = onEdit) {
                     Icon(
                         imageVector = Icons.Default.Edit,

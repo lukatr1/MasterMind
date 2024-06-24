@@ -10,7 +10,7 @@ import com.example.mastermind.viewModel.BookmarkedScreenViewModel
 interface QuizRepo {
     suspend fun getAllQuizzes(): List<Quiz>
     suspend fun getQuizById(id: Int): Quiz
-    suspend fun createQuiz(name: String):Int
+    suspend fun createQuiz(name: String, author: String):Int
     suspend fun deleteQuiz(id: Int)
     suspend fun removeQuestionFromQuiz(quizId: Int)
     //suspend fun removeQuestionFromQuiz(questionId: Int)
@@ -60,7 +60,8 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
                 questions = quizDao.getQuestionsByQuizId(quizEntity.id).map { questionEntity ->
                     mapQuestionEntityToQuestion(questionEntity)
                 },
-                isBookmarked = quizEntity.isBookmarked
+                isBookmarked = quizEntity.isBookmarked,
+                createdBy = quizEntity.createdBy
             )
         }
     }
@@ -73,7 +74,8 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
                 questions = quizDao.getQuestionsByQuizId(quizEntity.id).map { questionEntity ->
                     mapQuestionEntityToQuestion(questionEntity)
                 },
-                isBookmarked = quizEntity.isBookmarked
+                isBookmarked = quizEntity.isBookmarked,
+                createdBy = quizEntity.createdBy
             )
         }
     }
@@ -83,7 +85,7 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
     }
 
     override suspend fun getQuizById(id: Int): Quiz {
-        val quizEntity = quizDao.getQuizById(id) ?: return Quiz(id = -1, name = "Error", questions = emptyList())
+        val quizEntity = quizDao.getQuizById(id) ?: return Quiz(id = -1, name = "Error", createdBy = "Error" , questions = emptyList())
         val questions = quizDao.getQuestionsByQuizId(id).map { questionEntity ->
             mapQuestionEntityToQuestion(questionEntity)
         }
@@ -91,12 +93,13 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
             id = quizEntity.id,
             name = quizEntity.name,
             questions = questions,
-                    isBookmarked = quizEntity.isBookmarked
+                    isBookmarked = quizEntity.isBookmarked,
+                    createdBy = quizEntity.createdBy
         )
     }
 
-    override suspend fun createQuiz(name: String): Int {
-        val quizEntity = QuizEntity(name = name)
+    override suspend fun createQuiz(name: String, author: String): Int {
+        val quizEntity = QuizEntity(name = name, createdBy = author)
         return quizDao.insertQuiz(quizEntity).toInt()
     }
 
