@@ -1,6 +1,7 @@
 package com.example.mastermind.view
 
 import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.example.mastermind.utils.SharedPreferencesHelper
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
 class HomeScreen(private var context: Context) : Screen {
@@ -38,6 +41,8 @@ class HomeScreen(private var context: Context) : Screen {
     override fun Content() {
         val seeQuizzesViewModel = SeeQuizzesScreenViewModel(getContext())
         val navigator = LocalNavigator.current
+        SharedPreferencesHelper.getUsername(getContext())
+            ?.let { Text(text = "Welcome " + it + "!", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp)) }
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -68,7 +73,21 @@ class HomeScreen(private var context: Context) : Screen {
                 navigator?.push(AboutAppScreen(getContext()))
                 })
             }
-        }
+            Spacer(modifier = Modifier
+                .height(15.dp)
+                .fillMaxWidth()
+                .padding(8.dp)
+                .height(8.dp)
+            )
+
+            FloatingActionButton(modifier = Modifier.background(Color.Red), onClick = {
+                SharedPreferencesHelper.clearUsername(getContext())
+                navigator?.popUntil { it is StartingScreen }
+            }) {
+                Text("Logout")
+            }
+            }
+
     }
 }
 

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 
 object SharedPreferencesHelper {
-    private const val SHARED_PREFS_NAME = "MyAppPrefs"
+    private const val SHARED_PREFS_NAME = "MasterMindPrefs"
     private const val KEY_USERNAME = "username"
 
     private fun getSharedPreferences(context: Context): SharedPreferences {
