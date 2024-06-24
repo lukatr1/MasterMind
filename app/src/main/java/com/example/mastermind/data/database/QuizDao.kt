@@ -49,5 +49,9 @@ interface QuizDao {
 
     @Query("UPDATE quizzes SET isBookmarked = :isBookmarked WHERE id = :id")
     suspend fun updateQuizBookmarkStatus(id: Int, isBookmarked: Boolean)
+
+    @Query("SELECT choices_true FROM questions WHERE id = :questionId")
+    suspend fun getAllChoicesTrue(questionId: Int): List<String>
+
 }
 

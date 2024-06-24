@@ -22,6 +22,8 @@ interface QuizRepo {
     suspend fun unbookmarkQuiz(quiz: Quiz)
     suspend fun getBookmarkedQuizzes(): List<Quiz>
     suspend fun bookmarkQuiz(quiz: Quiz)
+
+    suspend fun getAllChoicesTrue(id: Int): List<String>
 }
 
 class GetQuizRepoProvider {
@@ -129,6 +131,10 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
             answer = answer
         )
         return quizDao.insertQuestion(questionEntity).toInt()
+    }
+
+    override suspend fun getAllChoicesTrue(id: Int): List<String> {
+        return quizDao.getAllChoicesTrue(id)
     }
 
     override suspend fun getQuestionsByQuizId(quizId: Int): List<Question> {

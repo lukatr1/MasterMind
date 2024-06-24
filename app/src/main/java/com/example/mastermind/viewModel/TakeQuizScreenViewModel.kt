@@ -22,4 +22,13 @@ class TakeQuizScreenViewModel(context: Context) : ViewModel() {
         viewModelScope.launch {
         _quiz.value = quizRepo.getQuizById(quizId)
     }}
+
+    fun getAllTrueChoices(id: Int): List<String> {
+        var choiceList = mutableListOf<String>()
+        viewModelScope.launch {
+            choiceList = quizRepo.getAllChoicesTrue(id).toMutableList()
+            //log("ViewModel: $choiceList")
+        }
+        return choiceList
+    }
 }

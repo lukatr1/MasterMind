@@ -125,90 +125,115 @@ data class TakeQuizScreen(val quizId: Int, private var context: Context) : Scree
 }
 
 
-    @Composable
-    fun QuestionItem(
-        question: Question,
-        onAnswered: (Boolean) -> Unit,
-        questionNumber: Int // Added parameter for question number
-    ) {
-        var isAnswered by remember { mutableStateOf(false) }
-        var isCorrect by remember { mutableStateOf(false) }
+@Composable
+fun QuestionItem(
+    question: Question,
+    onAnswered: (Boolean) -> Unit,
+    questionNumber: Int // Added parameter for question number
+) {
+    var selectedChoices by remember { mutableStateOf(mutableSetOf<String>()) }
+    var isAnswered by remember { mutableStateOf(false) }
+    var isCorrect by remember { mutableStateOf(false) }
 
-        // Function to format the question number
-        fun formatQuestionNumber(number: Int): String {
-            return number.toString()
-        }
+    // Function to format the question number
+    fun formatQuestionNumber(number: Int): String {
+        return number.toString()
+    }
 
-        Column {
-            Text(
-                text = formatQuestionNumber(questionNumber) + ". " + question.text, // Use custom function for number
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            when (question) {
-                is QuestionMultipleChoice -> {
-                    val shuffledChoices =
-                        (question.choicesTrue + question.choicesFalse).shuffled() // shuffle cards
-                    shuffledChoices.forEach { choice ->
-                        AnswerCard(
-                            choice = choice,
-                            isCorrect = question.choicesTrue.contains(choice),
-                            onClick = {
-                                if (!isAnswered) {
+    Column {
+        Text(
+            text = formatQuestionNumber(questionNumber) + ". " + question.text, // Use custom function for number
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        when (question) {
+            is QuestionMultipleChoice -> {
+                val shuffledChoices =
+                    (question.choicesTrue + question.choicesFalse).shuffled() // shuffle choices
+                shuffledChoices.forEach { choice ->
+                    val isSelected = selectedChoices.contains(choice)
+                    AnswerCard(
+                        choice = choice,
+                        isCorrect = question.choicesTrue.contains(choice),
+                        onClick = {
+                            if (!isAnswered) {
+                                if (isSelected) {
+                                    selectedChoices.remove(choice)
+                                } else {
+                                    selectedChoices.add(choice)
+                                }
+
+                                val allTrueSelected = question.choicesTrue.all { selectedChoices.contains(it) }
+                                val anyFalseSelected = question.choicesFalse.any { selectedChoices.contains(it) }
+
+                                if (allTrueSelected && !anyFalseSelected) {
+                                    isCorrect = true
                                     isAnswered = true
-                                    isCorrect = question.choicesTrue.contains(choice)
+                                } else if (anyFalseSelected) {
+                                    isCorrect = false
+                                    isAnswered = true
+                                }
+
+                                if (isAnswered) {
                                     onAnswered(isCorrect)
                                 }
-                            },
-                            showResult = isAnswered && isCorrect == question.choicesTrue.contains(choice)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
-
-                is QuestionTrueFalse -> {
-                    val trueFalseChoices =
-                        listOf(question.answer, question.answer.not()).shuffled()
-
-                    AnswerCard(
-                        choice = trueFalseChoices[0].toString().uppercase(),
-                        isCorrect = trueFalseChoices[0] == question.answer,
-                        onClick = {
-                            if (!isAnswered) {
-                                isAnswered = true
-                                isCorrect = trueFalseChoices[0] == question.answer
-                                onAnswered(isCorrect)
                             }
                         },
-                        showResult = isAnswered && isCorrect == (trueFalseChoices[0] == question.answer)
+                        showResult = isAnswered
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    AnswerCard(
-                        choice = trueFalseChoices[1].toString().uppercase(),
-                        isCorrect = trueFalseChoices[1] == question.answer,
-                        onClick = {
-                            if (!isAnswered) {
-                                isAnswered = true
-                                isCorrect = trueFalseChoices[1] == question.answer
-                                onAnswered(isCorrect)
-                            }
-                        },
-                        showResult = isAnswered && isCorrect == (trueFalseChoices[1] == question.answer)
-                    )
                 }
             }
 
-            if (isAnswered) {
-                val resultText = if (isCorrect) "Correct!" else "Incorrect!"
-                Text(
-                    text = resultText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isCorrect) Color.Green else Color.Red,
-                    modifier = Modifier.padding(vertical = 8.dp)
+            is QuestionTrueFalse -> {
+                val trueFalseChoices =
+                    listOf(question.answer, question.answer.not()).shuffled()
+
+                AnswerCard(
+                    choice = trueFalseChoices[0].toString().uppercase(),
+                    isCorrect = trueFalseChoices[0] == question.answer,
+                    onClick = {
+                        if (!isAnswered) {
+                            selectedChoices.clear()
+                            selectedChoices.add(trueFalseChoices[0].toString().uppercase())
+
+                            isAnswered = true
+                            isCorrect = trueFalseChoices[0] == question.answer
+                            onAnswered(isCorrect)
+                        }
+                    },
+                    showResult = isAnswered
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                AnswerCard(
+                    choice = trueFalseChoices[1].toString().uppercase(),
+                    isCorrect = trueFalseChoices[1] == question.answer,
+                    onClick = {
+                        if (!isAnswered) {
+                            selectedChoices.clear()
+                            selectedChoices.add(trueFalseChoices[1].toString().uppercase())
+
+                            isAnswered = true
+                            isCorrect = trueFalseChoices[1] == question.answer
+                            onAnswered(isCorrect)
+                        }
+                    },
+                    showResult = isAnswered
                 )
             }
         }
+
+        if (isAnswered) {
+            val resultText = if (isCorrect) "Correct!" else "Incorrect!"
+            Text(
+                text = resultText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (isCorrect) Color.Green else Color.Red,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
     }
+}
 
 @Composable
 fun AnswerCard(choice: String, isCorrect: Boolean, onClick: () -> Unit, showResult: Boolean) {
