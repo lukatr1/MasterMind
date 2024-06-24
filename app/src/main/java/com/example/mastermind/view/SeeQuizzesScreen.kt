@@ -32,13 +32,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -47,9 +47,10 @@ import com.example.mastermind.data.models.log
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
 
 class SeeQuizzesScreen(private var context: Context) : Screen {
-    private fun getContext () : Context {
+    private fun getContext(): Context {
         return context
     }
+
     @Composable
     override fun Content() {
         val navigation = LocalNavigator.current
@@ -61,7 +62,6 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
         var showEditDialog by remember { mutableStateOf(false) }
         var quizToEdit by remember { mutableStateOf<Quiz?>(null) }
         var editQuizName by remember { mutableStateOf("") }
-        var bookmarkedQuizzes by remember { mutableStateOf(emptyList<Quiz>()) }
 
         // Fetch quizzes when the screen is first created
         LaunchedEffect(Unit) {
@@ -112,17 +112,16 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                                     editQuizName = quiz.name
                                     showEditDialog = true
                                 },
-                                onBookmark = {
-                                    quiz.bookmarked = !quiz.bookmarked
-                                    if (quiz.bookmarked) {
-                                        bookmarkedQuizzes += quiz
+                                onBookmarkButtonPressed = {
+                                    val newState = !quiz.isBookmarked
+                                    quiz.isBookmarked = newState
+                                    if (newState) {
+                                        viewModel.bookmarkQuiz(quiz)
                                     } else {
-                                        bookmarkedQuizzes = bookmarkedQuizzes.filterNot {
-                                            it.id == quiz.id
-                                            //bookmarkedQuizzes -= quiz
-                                        }
+                                        viewModel.unbookmarkQuiz(quiz)
                                     }
                                 }
+                                ,
                             )
                             Spacer(modifier = Modifier.height(14.dp))
                         }
@@ -148,10 +147,8 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                 text = { Text("Are you sure you want to delete this quiz?") },
                 confirmButton = {
                     Button(onClick = {
-                        quizToDelete?.let { viewModel.deleteQuiz(it.id)
-                        viewModel.removeQuestionFromQuiz(it.id)}
+                        quizToDelete?.let { viewModel.deleteQuiz(it.id) }
                         showDeleteDialog = false
-                        viewModel.updateQuizzes()
                     }) {
                         Text("Yes")
                     }
@@ -182,7 +179,6 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                     Button(onClick = {
                         quizToEdit?.let { viewModel.editQuiz(it.id, editQuizName) }
                         showEditDialog = false
-                        viewModel.updateQuizzes()
                     }) {
                         Text("Save")
                     }
@@ -202,7 +198,7 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
         onClick: () -> Unit,
         onDelete: () -> Unit,
         onEdit: () -> Unit,
-        onBookmark: () -> Unit
+        onBookmarkButtonPressed: () -> Unit
     ) {
         Card(
             modifier = Modifier
@@ -240,12 +236,15 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                         tint = Color.Red
                     )
                 }
-                IconButton(onClick = onBookmark) {
-                    val bookmarkIcon = if (quiz.bookmarked) Icons.Default.FavoriteBorder else Icons.Default.Favorite
+
+                val bookmarkIcon = if (quiz.isBookmarked) Icons.Default.Favorite else Icons.Default.FavoriteBorder
+                val bookmarkTint = if (quiz.isBookmarked) Color.Red else Color.Gray
+
+                IconButton(onClick = onBookmarkButtonPressed) {
                     Icon(
                         imageVector = bookmarkIcon,
                         contentDescription = "Bookmark Quiz",
-                        tint = if (quiz.bookmarked) Color.Red else Color.Gray
+                        tint = bookmarkTint
                     )
                 }
             }

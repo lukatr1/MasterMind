@@ -98,7 +98,7 @@ class BookmarkedScreen(private var context: Context) : Screen {
                                 quiz = quiz,
                                 onClick = { navigation?.push(TakeQuizScreen(quiz.id, getContext())) },
                                 onUnbookmark = {
-                                    //viewModel.unbookmarkQuiz(quiz)
+                                    viewModel.unbookmarkQuiz(quiz)
                                 }
 
 

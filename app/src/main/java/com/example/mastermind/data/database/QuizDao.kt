@@ -44,10 +44,10 @@ interface QuizDao {
     @Insert
     suspend fun insertQuizQuestionCrossRef(crossRef: QuizQuestionCrossRef)
 
-    @Query("SELECT * FROM quizzes")
+    @Query("SELECT * FROM quizzes WHERE isBookmarked = 1")
     suspend fun getBookmarkedQuizzes(): List<QuizEntity>
 
-    /*@Query()
-    suspend fun addQuizToBookmarks(quiz: QuizEntity)*/
+    @Query("UPDATE quizzes SET isBookmarked = :isBookmarked WHERE id = :id")
+    suspend fun updateQuizBookmarkStatus(id: Int, isBookmarked: Boolean)
 }
 

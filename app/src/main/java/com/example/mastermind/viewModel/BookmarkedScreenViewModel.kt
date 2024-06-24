@@ -18,19 +18,16 @@ class BookmarkedScreenViewModel(context: Context) : ViewModel() {
     val bookmarkedQuizzes: LiveData<List<Quiz>>
         get() = _bookmarkedQuizzes
 
-    suspend fun getBookmarkedQuizzes() {
-        _bookmarkedQuizzes.value = quizRepo.getBookmarkedQuizzes()
+    fun getBookmarkedQuizzes() {
+        viewModelScope.launch {
+            _bookmarkedQuizzes.value = quizRepo.getBookmarkedQuizzes()
+        }
     }
 
-    /*fun unbookmarkQuiz(quiz: Quiz) {
-        quiz.bookmarked = false
-        quizRepo.updateQuiz(quiz)
-        getBookmarkedQuizzes()
-    }*/
-
-    suspend fun unbookmarkQuiz(quiz: Quiz) {
+    fun unbookmarkQuiz(quiz: Quiz) {
         viewModelScope.launch {
-        quizRepo.unbookmarkQuiz(quiz)}
-        getBookmarkedQuizzes()
+            quizRepo.unbookmarkQuiz(quiz)
+            getBookmarkedQuizzes()
+        }
     }
 }

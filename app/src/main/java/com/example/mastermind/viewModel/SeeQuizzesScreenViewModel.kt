@@ -5,29 +5,30 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mastermind.data.GetQuizRepoProvider
 import com.example.mastermind.data.QuizRepo
 import com.example.mastermind.data.models.Quiz
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class SeeQuizzesScreenViewModel(context: Context) : ViewModel() {
 
     private val quizRepo: QuizRepo = GetQuizRepoProvider().getsInstance(context)
 
     private val _quizzes = MutableLiveData<List<Quiz>>()
+
     val quizzes: LiveData<List<Quiz>>
         get() = _quizzes
+
 
     init {
         getAllQuizzes()
     }
 
+
     fun getAllQuizzes() {
         viewModelScope.launch {
-        _quizzes.value = quizRepo.getAllQuizzes()}
+            _quizzes.value = quizRepo.getAllQuizzes()
+        }
     }
 
     fun updateQuizzes() {
@@ -40,7 +41,6 @@ class SeeQuizzesScreenViewModel(context: Context) : ViewModel() {
         viewModelScope.launch {
             quizRepo.deleteQuiz(id)
             quizRepo.getQuestionsByQuizId(id).forEach { question ->
-                //quizRepo.removeQuestionFromQuiz(id, question.id)
                 quizRepo.removeQuestionFromQuiz(id)
             }
             updateQuizzes()
@@ -58,14 +58,19 @@ class SeeQuizzesScreenViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun removeQuestionFromQuiz(quizId: Int) {
+    fun bookmarkQuiz(quiz: Quiz) {
         viewModelScope.launch {
-            quizRepo.removeQuestionFromQuiz(quizId)
+            quiz.isBookmarked = true
+            quizRepo.bookmarkQuiz(quiz)
             updateQuizzes()
         }
     }
 
-    suspend fun getBookmarkedQuizzes(): List<Quiz> {
-        return quizRepo.getBookmarkedQuizzes()
+    fun unbookmarkQuiz(quiz: Quiz) {
+        viewModelScope.launch {
+            quiz.isBookmarked = false
+            quizRepo.unbookmarkQuiz(quiz)
+            updateQuizzes()
+        }
     }
 }

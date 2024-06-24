@@ -21,6 +21,7 @@ interface QuizRepo {
     suspend fun updateQuestion(quizId: Int, questionId: Int, newText: String): Boolean
     suspend fun unbookmarkQuiz(quiz: Quiz)
     suspend fun getBookmarkedQuizzes(): List<Quiz>
+    suspend fun bookmarkQuiz(quiz: Quiz)
 }
 
 class GetQuizRepoProvider {
@@ -49,8 +50,6 @@ class GetQuizRepoProvider {
 
 class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
 
-    private val allQuizzes = mutableListOf<Quiz>()
-
     override suspend fun getAllQuizzes(): List<Quiz> {
         return quizDao.getAllQuizzes().map { quizEntity ->
             Quiz(
@@ -58,40 +57,40 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
                 name = quizEntity.name,
                 questions = quizDao.getQuestionsByQuizId(quizEntity.id).map { questionEntity ->
                     mapQuestionEntityToQuestion(questionEntity)
-                }
+                },
+                isBookmarked = quizEntity.isBookmarked
             )
         }
     }
 
     override suspend fun getBookmarkedQuizzes(): List<Quiz> {
-        return allQuizzes.filter { it.bookmarked }
-    }
-
-    /*override suspend fun getBookmarkedQuizzes(): List<Quiz> {
         return quizDao.getBookmarkedQuizzes().map { quizEntity ->
             Quiz(
                 id = quizEntity.id,
                 name = quizEntity.name,
                 questions = quizDao.getQuestionsByQuizId(quizEntity.id).map { questionEntity ->
                     mapQuestionEntityToQuestion(questionEntity)
-                }
+                },
+                isBookmarked = quizEntity.isBookmarked
             )
         }
-    }*/
+    }
+
+    override suspend fun bookmarkQuiz(quiz: Quiz) {
+        quizDao.updateQuizBookmarkStatus(quiz.id, true)
+    }
 
     override suspend fun getQuizById(id: Int): Quiz {
-        val quizEntity = quizDao.getQuizById(id)
+        val quizEntity = quizDao.getQuizById(id) ?: return Quiz(id = -1, name = "Error", questions = emptyList())
         val questions = quizDao.getQuestionsByQuizId(id).map { questionEntity ->
             mapQuestionEntityToQuestion(questionEntity)
         }
-        if (quizEntity != null) {
-            return Quiz(
-                id = quizEntity.id,
-                name = quizEntity.name,
-                questions = questions
-            )
-        }
-        return Quiz(id = -1, name = "Error", questions = emptyList())
+        return Quiz(
+            id = quizEntity.id,
+            name = quizEntity.name,
+            questions = questions,
+                    isBookmarked = quizEntity.isBookmarked
+        )
     }
 
     override suspend fun createQuiz(name: String): Int {
@@ -99,37 +98,19 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
         return quizDao.insertQuiz(quizEntity).toInt()
     }
 
-    /*override suspend fun unbookmarkQuiz(quiz: Quiz) {
-        val updatedQuiz = quiz.copy(bookmarked = false)
-        allQuizzes[allQuizzes.indexOf(quiz)] = updatedQuiz
-    }*/
-
     override suspend fun unbookmarkQuiz(quiz: Quiz) {
-        val quizEntity = QuizEntity(
-            id = quiz.id,
-            name = quiz.name,
-            //bookmarked = false
-        )
-        quizDao.insertQuiz(quizEntity)
+        quizDao.updateQuizBookmarkStatus(quiz.id, false)
     }
 
     override suspend fun deleteQuiz(id: Int) {
         quizDao.deleteQuizById(id)
-        //quizDao.removeQuestionFromQuiz(id)
     }
-
-    /*override suspend fun removeQuestionFromQuiz(quizId: Int, questionId: Int) {
-        quizDao.removeQuestionFromQuiz(quizId, questionId)
-    }*/
 
     override suspend fun removeQuestionFromQuiz(quizId: Int) {
         quizDao.removeQuestionFromQuiz(quizId)
     }
 
-
-
     override suspend fun createMultipleChoiceQuestion(quizId: Int, choicesTrue: List<String>, choicesFalse: List<String>, text: String): Int {
-        // Create the base question entity
         val questionEntity = QuestionEntity(
             text = text,
             quizId = quizId,
@@ -137,32 +118,17 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
             choicesTrue = choicesTrue,
             choicesFalse = choicesFalse
         )
-
-        // Insert the question and get its ID
-        val questionId = quizDao.insertQuestion(questionEntity).toInt()
-
-        // Link the question to the quiz
-        linkQuestionToQuiz(quizId, questionId)
-
-        return questionId
+        return quizDao.insertQuestion(questionEntity).toInt()
     }
 
     override suspend fun createTrueFalseQuestion(quizId: Int, answer: Boolean, text: String): Int {
-        // Create the base question entity
         val questionEntity = QuestionEntity(
             text = text,
             quizId = quizId,
             questionType = "true_false",
-            answer = answer,
+            answer = answer
         )
-
-        // Insert the question and get its ID
-        val questionId = quizDao.insertQuestion(questionEntity).toInt()
-
-        // Link the question to the quiz
-        linkQuestionToQuiz(quizId, questionId)
-
-        return questionId
+        return quizDao.insertQuestion(questionEntity).toInt()
     }
 
     override suspend fun getQuestionsByQuizId(quizId: Int): List<Question> {
@@ -183,33 +149,27 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
 
     private fun mapQuestionEntityToQuestion(questionEntity: QuestionEntity): Question {
         return when (questionEntity.questionType) {
-            "multiple_choice" -> {
-                QuestionMultipleChoice(
-                    id = questionEntity.id,
-                    text = questionEntity.text,
-                    choicesTrue = questionEntity.choicesTrue ?: emptyList(),
-                    choicesFalse = questionEntity.choicesFalse ?: emptyList(),
-                    quizId = questionEntity.quizId
-                )
-            }
-            "true_false" -> {
-                QuestionTrueFalse(
-                    id = questionEntity.id,
-                    text = questionEntity.text,
-                    answer = questionEntity.answer ?: false, // Default to false if answer is null
-                    quizId = questionEntity.quizId
-                )
-            }
-            else -> {
-                // Default case: handle as regular Question
-                Question(
-                    id = questionEntity.id,
-                    text = questionEntity.text,
-
-                )
-            }
+            "multiple_choice" -> QuestionMultipleChoice(
+                id = questionEntity.id,
+                text = questionEntity.text,
+                choicesTrue = questionEntity.choicesTrue ?: emptyList(),
+                choicesFalse = questionEntity.choicesFalse ?: emptyList(),
+                quizId = questionEntity.quizId
+            )
+            "true_false" -> QuestionTrueFalse(
+                id = questionEntity.id,
+                text = questionEntity.text,
+                answer = questionEntity.answer ?: false,
+                quizId = questionEntity.quizId
+            )
+            else -> Question(
+                id = questionEntity.id,
+                text = questionEntity.text
+            )
         }
     }
+
+
 
     private suspend fun linkQuestionToQuiz(quizId: Int, questionId: Int) {
         try {
@@ -222,7 +182,6 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
             // Check if the questionId exists
             val questionExists = quizDao.getQuestionById(questionId) != null
             if (!questionExists) {
-                Log.d("TAG", "Question with id $questionId does not exist.")
                 return
             }
 
@@ -230,14 +189,10 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
             val crossRef = QuizQuestionCrossRef(quizId = quizId, questionId = questionId)
             quizDao.insertQuizQuestionCrossRef(crossRef)
 
-            // Log successful linking
-            Log.d("TAG", "Linked quiz with id $quizId to question with id $questionId")
         } catch (e: IllegalArgumentException) {
-            // Log the exception and rethrow it for higher-level handling
-            Log.e("TAG", "Error linking question to quiz: ${e.message}")
+
             throw e
         } catch (e: Exception) {
-            // Log any unexpected exceptions
             Log.e("TAG", "Unexpected error linking question to quiz: ${e.message}")
             throw e
         }

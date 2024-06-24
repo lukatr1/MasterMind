@@ -5,12 +5,13 @@ data class Quiz(
     val id: Int,
     val name: String,
     val questions: List<Question>,
-    var bookmarked: Boolean = false
+    var isBookmarked: Boolean = false
 )
 @Entity(tableName = "quizzes")
 data class QuizEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "name") val name: String
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo("IsBookmarked") val isBookmarked: Boolean = false
 )
 
 @Entity(tableName = "quiz_questions",
