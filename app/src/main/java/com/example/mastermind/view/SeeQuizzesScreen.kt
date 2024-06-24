@@ -63,6 +63,7 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
         var quizToEdit by remember { mutableStateOf<Quiz?>(null) }
         var editQuizName by remember { mutableStateOf("") }
 
+
         // Fetch quizzes when the screen is first created
         LaunchedEffect(Unit) {
             viewModel.getAllQuizzes()
@@ -111,6 +112,8 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                                     navigation?.push(QuestionsOverviewScreen(quiz.id, getContext()))
                                 },
                                 onBookmarkButtonPressed = {
+                                    // toggle bookmark status and update the UI
+                                    navigation?.replace(SeeQuizzesScreen(getContext()))
                                     val newState = !quiz.isBookmarked
                                     quiz.isBookmarked = newState
                                     if (newState) {
@@ -118,8 +121,7 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                                     } else {
                                         viewModel.unbookmarkQuiz(quiz)
                                     }
-                                }
-                                ,
+                                },
                             )
                             Spacer(modifier = Modifier.height(14.dp))
                         }
@@ -198,6 +200,7 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
         onEdit: () -> Unit,
         onBookmarkButtonPressed: () -> Unit
     ) {
+        //val navigator = LocalNavigator.current
         Card(
             modifier = Modifier
                 .padding(8.dp)
@@ -237,8 +240,11 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
 
                 val bookmarkIcon = if (quiz.isBookmarked) Icons.Default.Favorite else Icons.Default.FavoriteBorder
                 val bookmarkTint = if (quiz.isBookmarked) Color.Red else Color.Gray
+                val navigator = LocalNavigator.current
 
-                IconButton(onClick = onBookmarkButtonPressed) {
+                IconButton(onClick = onBookmarkButtonPressed,
+
+                ) {
                     Icon(
                         imageVector = bookmarkIcon,
                         contentDescription = "Bookmark Quiz",
