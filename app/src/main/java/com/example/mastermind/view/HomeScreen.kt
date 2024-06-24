@@ -118,7 +118,7 @@ class HomeScreen(private var context: Context) : Screen {
                     )
                 }
             }
-            }
+        }
     }
 }
 

@@ -63,10 +63,11 @@ data class TakeQuizScreen(val quizId: Int, private var context: Context) : Scree
         // Show popup when quiz is completed
         var showQuizCompletedPopup by remember { mutableStateOf(false) }
 
+        // Load quiz when screen is launched
         LaunchedEffect(quizId) {
             viewModel.loadQuiz(quizId)
         }
-
+        // Layout
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -82,6 +83,7 @@ data class TakeQuizScreen(val quizId: Int, private var context: Context) : Scree
                 Spacer(modifier = Modifier.height(16.dp))
                 QuestionList(
                     questions = q.questions,
+                    // Update correct answers and answered questions count
                     onAnswered = { isCorrect ->
                         if (isCorrect) {
                             correctAnswers++
@@ -111,8 +113,7 @@ data class TakeQuizScreen(val quizId: Int, private var context: Context) : Scree
                 confirmButton = {
                     Button(
                         onClick = {
-                            navigator?.pop()
-                            navigator?.push(HomeScreen(getContext()))
+                            navigator?.replace(HomeScreen(getContext()))
                             showQuizCompletedPopup = false
                         }
                     ) {
@@ -125,14 +126,18 @@ data class TakeQuizScreen(val quizId: Int, private var context: Context) : Scree
 }
 
 
+
 @Composable
 fun QuestionItem(
     question: Question,
     onAnswered: (Boolean) -> Unit,
-    questionNumber: Int // Added parameter for question number
+    questionNumber: Int
 ) {
+    // track selected choices
     var selectedChoices by remember { mutableStateOf(mutableSetOf<String>()) }
+    // track if the question is answered
     var isAnswered by remember { mutableStateOf(false) }
+    // track if the answer is correct
     var isCorrect by remember { mutableStateOf(false) }
 
     // Function to format the question number
@@ -147,6 +152,7 @@ fun QuestionItem(
         )
         Spacer(modifier = Modifier.height(8.dp))
         when (question) {
+            // Multiple choice question
             is QuestionMultipleChoice -> {
                 val shuffledChoices =
                     (question.choicesTrue + question.choicesFalse).shuffled() // shuffle choices
@@ -162,7 +168,7 @@ fun QuestionItem(
                                 } else {
                                     selectedChoices.add(choice)
                                 }
-
+                                // Check if the question is answered and if all True are selected
                                 val allTrueSelected = question.choicesTrue.all { selectedChoices.contains(it) }
                                 val anyFalseSelected = question.choicesFalse.any { selectedChoices.contains(it) }
 
@@ -173,7 +179,7 @@ fun QuestionItem(
                                     isCorrect = false
                                     isAnswered = true
                                 }
-
+                                // Call onAnswered only if the question is answered
                                 if (isAnswered) {
                                     onAnswered(isCorrect)
                                 }
@@ -185,10 +191,12 @@ fun QuestionItem(
                 }
             }
 
+            // True or False question
             is QuestionTrueFalse -> {
                 val trueFalseChoices =
                     listOf(question.answer, question.answer.not()).shuffled()
 
+                // this is the false choice
                 AnswerCard(
                     choice = trueFalseChoices[0].toString().uppercase(),
                     isCorrect = trueFalseChoices[0] == question.answer,
@@ -205,6 +213,7 @@ fun QuestionItem(
                     showResult = isAnswered
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                // this is the true choice
                 AnswerCard(
                     choice = trueFalseChoices[1].toString().uppercase(),
                     isCorrect = trueFalseChoices[1] == question.answer,
@@ -222,7 +231,7 @@ fun QuestionItem(
                 )
             }
         }
-
+        // Show result text
         if (isAnswered) {
             val resultText = if (isCorrect) "Correct!" else "Incorrect!"
             Text(
@@ -259,6 +268,7 @@ fun AnswerCard(choice: String, isCorrect: Boolean, onClick: () -> Unit, showResu
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 color = Color.White
             )
+            // Show result icon
             if (showResult) {
                 val icon = if (isCorrect) Icons.Filled.CheckCircle else Icons.Filled.Close
                 Icon(
@@ -276,6 +286,7 @@ fun AnswerCard(choice: String, isCorrect: Boolean, onClick: () -> Unit, showResu
 }
 
 
+// Add questionNumber parameter
 @Composable
 fun QuestionList(questions: List<Question>, onAnswered: (Boolean) -> Unit) {
     LazyColumn {
