@@ -84,7 +84,8 @@ class HomeScreen(private var context: Context) : Screen {
 
             FloatingActionButton(onClick = {
                 SharedPreferencesHelper.clearUsername(getContext())
-                navigator?.popUntil { it is StartingScreen }
+                navigator?.popAll()
+                navigator?.replace(StartingScreen(getContext()))
             }) {
                 Text("Logout")
             }
