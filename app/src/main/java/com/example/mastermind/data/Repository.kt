@@ -154,13 +154,16 @@ class QuizRepoImpl(private val quizDao: QuizDao) : QuizRepo {
                 text = questionEntity.text,
                 choicesTrue = questionEntity.choicesTrue ?: emptyList(),
                 choicesFalse = questionEntity.choicesFalse ?: emptyList(),
-                quizId = questionEntity.quizId
+                quizId = questionEntity.quizId,
+                questionType = "MultipleChoice"
+
             )
             "true_false" -> QuestionTrueFalse(
                 id = questionEntity.id,
                 text = questionEntity.text,
                 answer = questionEntity.answer ?: false,
-                quizId = questionEntity.quizId
+                quizId = questionEntity.quizId,
+                questionType = "TrueFalse"
             )
             else -> Question(
                 id = questionEntity.id,

@@ -108,9 +108,7 @@ class SeeQuizzesScreen(private var context: Context) : Screen {
                                     showDeleteDialog = true
                                 },
                                 onEdit = {
-                                    quizToEdit = quiz
-                                    editQuizName = quiz.name
-                                    showEditDialog = true
+                                    navigation?.push(QuestionsOverviewScreen(quiz.id, getContext()))
                                 },
                                 onBookmarkButtonPressed = {
                                     val newState = !quiz.isBookmarked

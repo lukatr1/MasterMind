@@ -33,7 +33,8 @@ var answer: Boolean? = null
 
 open class Question(
     open val id: Int,
-    open val text: String
+    open val text: String,
+    open val questionType: String = "",
 )
 
 data class QuestionMultipleChoice(
@@ -41,12 +42,14 @@ data class QuestionMultipleChoice(
     val choicesFalse: List<String>,
     override val id: Int,
     override  val text: String,
-    val quizId: Int
+    val quizId: Int,
+    override val questionType: String =  "MultipleChoice",
 ) : Question(id, text)
 
 data class QuestionTrueFalse(
     val answer: Boolean,
     override val id: Int,
     override val text: String,
-    val quizId: Int
+    val quizId: Int,
+    override val questionType: String =  "TrueFalse",
 ) : Question(id, text)
