@@ -32,6 +32,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import com.example.mastermind.utils.SharedPreferencesHelper
 import com.example.mastermind.viewModel.SeeQuizzesScreenViewModel
+import androidx.compose.material.*
+
 
 class HomeScreen(private var context: Context) : Screen {
     private fun getContext () : Context {
@@ -80,7 +82,7 @@ class HomeScreen(private var context: Context) : Screen {
                 .height(8.dp)
             )
 
-            FloatingActionButton(modifier = Modifier.background(Color.Red), onClick = {
+            FloatingActionButton(onClick = {
                 SharedPreferencesHelper.clearUsername(getContext())
                 navigator?.popUntil { it is StartingScreen }
             }) {
