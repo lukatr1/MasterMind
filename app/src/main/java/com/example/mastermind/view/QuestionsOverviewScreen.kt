@@ -83,7 +83,7 @@ class QuestionsOverviewScreen(private val quizId: Int, private var context: Cont
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(text = question.text, fontSize = 18.sp)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Type: TODO", fontSize = 14.sp, color = Color.Gray)
+                Text(text = if (question.questionType == "MultipleChoice") "Multiple Choice" else "True False", fontSize = 14.sp, color = Color.Gray)
             }
         }
     }

@@ -79,7 +79,7 @@ class CreateUpdateQuestionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -89,7 +89,7 @@ class CreateUpdateQuestionScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = { questionType = QuestionType.MultipleChoice }) {
@@ -159,7 +159,10 @@ class CreateUpdateQuestionScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column(Modifier.fillMaxWidth(), Arrangement.SpaceEvenly) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceAround
+                        ) {
                         Button(onClick = {
                             if (questionText.text.isNotEmpty()) {
                                 if (questionId == null) {
@@ -237,7 +240,7 @@ class CreateUpdateQuestionScreen(
                             }) {
                                 Text("Save & Add Another")
                             }
-                        }
+                        }}
                         Button(onClick = {
                             navigator?.pop()
                         }) {
